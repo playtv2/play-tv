@@ -2,27 +2,32 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>HotPlay TV</title>
+    <title>HotPlay VOD</title>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
     <style>
-        :root { --red: #e50914; --bg: #141414; --card-w: 250px; }
+        :root { --red: #e50914; --bg: #141414; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; display: flex; height: 100vh; }
         
-        /* תפריט צדדי מותאם לשלט */
-        .sidebar { width: 20%; background: #000; padding: 40px 20px; border-left: 2px solid #333; }
-        .nav-item { padding: 20px; font-size: 22px; cursor: pointer; border-radius: 10px; margin-bottom: 10px; }
-        .nav-item:focus { background: var(--red); outline: none; transform: scale(1.05); }
+        /* מסך בחירת פרופילים */
+        #profile-screen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .profile-container { display: flex; gap: 30px; margin-top: 40px; }
+        .profile-box { text-align: center; cursor: pointer; transition: 0.3s; }
+        .profile-avatar { width: 150px; height: 150px; border-radius: 8px; border: 4px solid transparent; margin-bottom: 15px; background-size: cover; }
+        .profile-box:focus .profile-avatar, .profile-box:hover .profile-avatar { border-color: white; transform: scale(1.1); }
+        .profile-box:focus { outline: none; }
 
-        /* אזור התוכן */
+        /* תפריט צדדי */
+        .sidebar { width: 20%; background: #000; padding: 40px 20px; border-left: 2px solid #333; display: flex; flex-direction: column; }
+        .nav-item { padding: 20px; font-size: 22px; cursor: pointer; border-radius: 10px; margin-bottom: 10px; }
+        .nav-item:focus { background: var(--red); outline: none; }
+
+        /* אזור תוכן */
         .content { width: 80%; padding: 50px; overflow-y: auto; }
         .row { display: flex; gap: 20px; padding: 20px 0; overflow-x: auto; }
-        
-        /* כרטיס סדרה עם אפקט פוקוס לטלוויזיה */
-        .card { min-width: var(--card-w); background: #222; border-radius: 15px; overflow: hidden; transition: 0.3s; border: 3px solid transparent; }
-        .card:focus { transform: scale(1.1); border-color: white; outline: none; box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+        .card { min-width: 250px; background: #222; border-radius: 15px; overflow: hidden; transition: 0.3s; border: 3px solid transparent; cursor: pointer; }
+        .card:focus { transform: scale(1.1); border-color: white; outline: none; }
         .card img { width: 100%; height: 150px; object-fit: cover; }
-        .card-info { padding: 15px; text-align: center; }
 
         .hidden { display: none !important; }
     </style>
@@ -31,12 +36,26 @@
 
     <div id="login-screen" style="width:100%; text-align:center; padding-top:20vh;">
         <h1 style="color:var(--red); font-size:80px;">HotPlay</h1>
-        <button id="login-btn" class="nav-item" onclick="login()">התחבר עם Google</button>
+        <button id="login-btn" class="nav-item" style="margin: 0 auto;" onclick="login()">התחבר עם Google</button>
+    </div>
+
+    <div id="profile-screen" class="hidden">
+        <h1 style="font-size: 50px;">מי צופה?</h1>
+        <div class="profile-container">
+            <div class="profile-box" tabindex="0" onclick="selectProfile('ניתאי', 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png')">
+                <div class="profile-avatar" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png');"></div>
+                <span>ניתאי</span>
+            </div>
+            <div class="profile-box" tabindex="0" onclick="selectProfile('אורח', 'https://loodibee.com/wp-content/uploads/Netflix-Avatar-2.png')">
+                <div class="profile-avatar" style="background-image: url('https://loodibee.com/wp-content/uploads/Netflix-Avatar-2.png');"></div>
+                <span>אורח</span>
+            </div>
+        </div>
     </div>
 
     <div id="app" class="hidden" style="display:flex; width:100%;">
         <div class="sidebar">
-            <h2 style="color:var(--red);">תפריט</h2>
+            <h2 id="user-greeting" style="color:var(--red); margin-bottom:30px;">שלום</h2>
             <div class="nav-item" tabindex="0" onclick="renderHome()">🏠 דף הבית</div>
             <div class="nav-item" tabindex="0">📺 סדרות</div>
             <div class="nav-item" tabindex="0">🎬 סרטים</div>
@@ -47,7 +66,6 @@
 
     <script src="data.js"></script>
     <script>
-        // קונפיגורציה מהדרייב שלך
         const firebaseConfig = {
             apiKey: "AIzaSyAuJlFyTuYypCVdJrZCrQGOEZZS5WDH6pI",
             authDomain: "app-c71dd.firebaseapp.com",
@@ -66,20 +84,25 @@
         firebase.auth().onAuthStateChanged(user => {
             if (user && user.email === "nitaylayish298@gmail.com") {
                 document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app').classList.remove('hidden');
-                renderHome();
+                document.getElementById('profile-screen').classList.remove('hidden');
             }
         });
+
+        function selectProfile(name, img) {
+            document.getElementById('profile-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            document.getElementById('user-greeting').innerText = "שלום, " + name;
+            renderHome();
+        }
 
         function renderHome() {
             const view = document.getElementById('main-view');
             view.innerHTML = '<h1>הסדרות שלי</h1><div class="row" id="series-row"></div>';
-            
             seriesData.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.tabIndex = "0"; // מאפשר פוקוס בשלט
-                card.innerHTML = `<img src="${item.image}"><div class="card-info"><b>${item.title}</b></div>`;
+                card.tabIndex = "0";
+                card.innerHTML = `<img src="${item.image}"><div style="padding:15px; text-align:center;"><b>${item.title}</b></div>`;
                 card.onclick = () => showEpisodes(item);
                 document.getElementById('series-row').appendChild(card);
             });
@@ -88,18 +111,15 @@
         function showEpisodes(series) {
             const view = document.getElementById('main-view');
             view.innerHTML = `<button class="nav-item" onclick="renderHome()">← חזור</button>
-                             <h1>${series.title}</h1><p>${series.description}</p>
-                             <div id="ep-list"></div>`;
-            
+                             <h1>${series.title}</h1><p>${series.description}</p><div id="ep-list"></div>`;
             series.episodes.forEach(ep => {
                 const row = document.createElement('div');
                 row.className = 'nav-item';
                 row.tabIndex = "0";
                 row.innerHTML = `▶ ${ep.name} - ${ep.desc}`;
-                // הפיכת ה-ID לקישור ישיר לנגן
                 row.onclick = () => {
-                    const directUrl = `https://drive.google.com/u/0/uc?id=${ep.driveId}&export=download`;
-                    window.location.href = directUrl;
+                    const previewUrl = `https://drive.google.com/file/d/${ep.driveId}/view?authuser=0`;
+                    window.location.href = previewUrl;
                 };
                 document.getElementById('ep-list').appendChild(row);
             });
