@@ -1,12 +1,14 @@
 const seriesData = [
     {
-        id: "zaguri", // מזהה ייחודי לסדרה
-        category: "חדשים ומומלצים",
+        id: "zaguri",
+        type: "series", // סדרה או סרט
+        category: "דרמה",
         title: "זגורי אימפריה",
-        image: "https://link-to-main-poster.jpg",
+        description: "סיפורה של משפחת זגורי בבאר שבע...", // תקציר
+        image: "https://link-to-poster.jpg",
         episodes: [
-            { name: "פרק 1", image: "https://link-to-ep1-thumb.jpg", url: "https://drive.google.com/link1" },
-            { name: "פרק 2", image: "https://link-to-ep2-thumb.jpg", url: "https://drive.google.com/link2" }
+            { name: "פרק 1", desc: "החזרה הביתה", url: "DRIVE_LINK_1" },
+            { name: "פרק 2", desc: "הסולחה", url: "DRIVE_LINK_2" }
         ]
     }
 ];
