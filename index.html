@@ -132,6 +132,31 @@
                     </div>`;
                 home.appendChild(section);
             });
+
+
+            {
+    id: "el atsmi", // שם ייחודי באנגלית (בלי רווחים)
+    type: "series", 
+    category: "סדרות", // הקטגוריה שבה זה יופיע בתפריט
+    title: "אל עצמי",
+    description: "כאן כותבים את התיאור שיופיע בדף הסדרה.",
+    image: "קישור_לתמונה_מ_ImgBB", // תמונת הפוסטר הראשית
+    episodes: [
+        { 
+            number: "10", 
+            desc: "תקציר פרק 1", 
+            image: "קישור_לתמונת_הפרק", 
+            driveId: "1-TJDR-bjqha_x-DHndKd-uvGIuQU3Lz0" 
+        },
+        { 
+            number: "2", 
+            desc: "תקציר פרק 2", 
+            image: "קישור_לתמונת_הפרק", 
+            driveId: "כאן_שמים_רק_את_הID_מהדרייב" 
+        }
+        // אפשר להוסיף עוד פרקים באותו מבנה...
+    ]
+}
         }
 
         function openContent(id) {
