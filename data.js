@@ -1,11 +1,12 @@
 const seriesData = [
+    // --- סדרות (אל עצמי - כבר מוכן עבורך) ---
     {
         id: "al-atzmi",
         type: "series", 
         category: "סדרות", 
         title: "אל עצמי",
         description: "סיפורו המרגש של ציון המנסה למצוא את מקומו בעולם ועובר לגור עם משפחה אומנת בחיפה.",
-        image: "https://images.maariv.co.il/image/upload/f_auto,q_auto/586339", // תמונת פוסטר
+        image: "https://images.maariv.co.il/image/upload/f_auto,q_auto/586339",
         episodes: [
             { number: "1", desc: "ציון מגיע למשפחת שרוני.", image: "", driveId: "1-TJDR-bjqha_x-DHndKd-uvGIuQU3Lz0" },
             { number: "2", desc: "ההתאקלמות בבית הספר.", image: "", driveId: "10Flj4VBaJ4ANqWfy8Lt0BRTPwsrITPHZ" },
@@ -26,14 +27,27 @@ const seriesData = [
         ]
     },
 
-    // --- כאן השארתי לך "מקום ריק" מוכן לסרט הראשון שתבחר להוסיף ---
+    // --- מקום לסדרה חדשה (להעתקה) ---
     {
-        id: "movie-template",
+        id: "new-series-id", // שם באנגלית בלי רווחים
+        type: "series", 
+        category: "סדרות", // אפשר לשנות ל"ילדים" או "דרמה"
+        title: "שם הסדרה",
+        description: "תיאור הסדרה כאן",
+        image: "קישור_מ_ImgBB",
+        episodes: [
+            { number: "1", desc: "תקציר פרק 1", image: "קישור_מ_ImgBB", driveId: "ID_מדרייב" }
+        ]
+    },
+
+    // --- מקום לסרט חדש (להעתקה - דף רקע מלא) ---
+    {
+        id: "new-movie-id",
         type: "movie", 
         category: "סרטים",
-        title: "שם הסרט שלך",
-        description: "כאן תכתוב את התקציר שיפיע על הרקע המלא.",
-        image: "https://via.placeholder.com/1920x1080?text=Movie+Background+Image", // תחליף בקישור מ-ImgBB
-        driveId: "" // שים כאן את ה-ID מהדרייב
+        title: "שם הסרט",
+        description: "תיאור הסרט שיופיע על הרקע המלא",
+        image: "קישור_לתמונה_איכותית_מ_ImgBB", // תמונה זו תהיה הרקע של כל הדף
+        driveId: "ID_מדרייב"
     }
 ];
