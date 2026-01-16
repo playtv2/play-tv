@@ -27,6 +27,32 @@ const seriesData = [
         ]
     },
 
+
+{
+    id: "tsair_mearot", // שם ייחודי באנגלית (בלי רווחים)
+    type: "series", 
+    category: "סדרות", // הקטגוריה שבה זה יופיע בתפריט
+    title: "צייר המערות",
+    description: "בדיקה.",
+    image: "https://i.ytimg.com/vi/VaFdaHs3isc/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBE65d-3PGwO9UtTaTya5fIXmgOlA", // תמונת הפוסטר הראשית
+    episodes: [
+        { 
+            number: "1", 
+            desc: "תקציר פרק 1", 
+            image: "https://i.ytimg.com/vi/VaFdaHs3isc/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBE65d-3PGwO9UtTaTya5fIXmgOlA", 
+            driveId: "כאן_שמים_רק_את_הID_מהדרייב" 
+        },
+        { 
+            number: "2", 
+            desc: "תקציר פרק 2", 
+            image: "קישור_לתמונת_הפרק", 
+            driveId: "כאן_שמים_רק_את_הID_מהדרייב" 
+        }
+        // אפשר להוסיף עוד פרקים באותו מבנה...
+    ]
+}
+    
+
     // --- מקום לסדרה חדשה (להעתקה) ---
     {
         id: "new-series-id", // שם באנגלית בלי רווחים
