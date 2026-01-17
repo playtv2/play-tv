@@ -10,14 +10,35 @@
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
     <style>
-        :root { --red: #ff0055; --bg: #0f0f0f; --sidebar-collapsed: 70px; --sidebar-expanded: 220px; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { 
+            --red: #ff0055; 
+            --bg: #0f0f0f; 
+            --sidebar-collapsed: 70px; 
+            --sidebar-expanded: 220px; 
+        }
+        
+        body { 
+            background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; 
+            margin: 0; display: flex; height: 100vh; overflow: hidden; 
+        }
         *:focus { outline: none; }
         
-        .sidebar { width: var(--sidebar-collapsed); background: #050505; display: flex; flex-direction: column; padding: 15px 5px; border-left: 1px solid #222; height: 100%; z-index: 500; transition: width 0.3s ease; flex-shrink: 0; position: relative; }
+        /* --- Sidebar מקובע (לא זז!) --- */
+        .sidebar { 
+            width: var(--sidebar-collapsed); 
+            background: #050505; 
+            display: flex; flex-direction: column; padding: 15px 5px; 
+            border-left: 1px solid #222; height: 100%; z-index: 500; 
+            transition: width 0.3s ease; flex-shrink: 0; position: relative;
+        }
         .sidebar:focus-within, .sidebar:hover { width: var(--sidebar-expanded); background: #000; }
         
-        .logo { width: 100%; height: 50px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 30px; background-image: url('https://i.ibb.co/pWv6GZ7/av4.png'); }
+        .logo { 
+            width: 100%; height: 50px; 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            margin-bottom: 30px; 
+            background-image: url('https://i.ibb.co/pWv6GZ7/av4.png'); 
+        }
         
         .nav-item { padding: 12px; font-size: 16px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; color: #888; transition: 0.2s; }
         .nav-icon { font-size: 22px; min-width: 40px; text-align: center; }
@@ -25,28 +46,72 @@
         .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; }
         .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
 
-        .main-content { flex: 1; height: 100vh; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; display: flex; flex-direction: column; }
+        /* --- אזור התוכן (גולל בצורה חכמה) --- */
+        .main-content { 
+            flex: 1; 
+            height: 100vh; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            scroll-behavior: smooth; 
+            display: flex; 
+            flex-direction: column;
+            
+            /* --- התיקון לגלילה אנכית חלקה --- */
+            scroll-snap-type: y mandatory; /* מגנט אנכי */
+            padding-bottom: 50px;
+        }
 
-        .hero { height: 55vh; width: 100%; background-size: cover; background-position: top center; position: relative; transition: background-image 0.4s ease-out; flex-shrink: 0; }
+        /* --- בלוק של קטגוריה (כותרת + שורה) --- */
+        .category-block {
+            scroll-snap-align: start; /* המגנט ננעל על תחילת הבלוק */
+            scroll-margin-top: 20px;  /* מרווח קטן מלמעלה כדי שהכותרת לא תידבק */
+            padding-bottom: 20px;
+        }
+
+        /* --- Hero --- */
+        .hero {
+            height: 55vh; width: 100%;
+            background-size: cover; background-position: top center;
+            position: relative; transition: background-image 0.4s ease-out;
+            flex-shrink: 0;
+            
+            /* גם ההירו הוא נקודת עצירה */
+            scroll-snap-align: start;
+        }
         .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 5%, transparent 90%), linear-gradient(to right, var(--bg) 0%, transparent 60%); }
         .hero-content { position: absolute; bottom: 100px; right: 50px; z-index: 10; max-width: 55%; animation: fadeIn 0.5s; }
         .hero-title { font-size: 50px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 10px black; }
         .hero-desc { font-size: 18px; color: #ccc; line-height: 1.4; text-shadow: 1px 1px 5px black; max-height: 100px; overflow: hidden; }
 
+        /* --- כרטיסיות --- */
         .category-title { font-size: 18px; margin: 5px 40px 5px; font-weight: bold; color: #ddd; text-shadow: 1px 1px 2px black; }
-        .row { display: flex; gap: 12px; padding: 10px 40px 30px; overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; scroll-snap-type: x mandatory; }
+        .row { 
+            display: flex; gap: 12px; padding: 10px 40px 20px; 
+            overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
+            scroll-snap-type: x mandatory; /* מגנט אופקי */
+        }
         .row::-webkit-scrollbar { display: none; }
         
-        .card { display: inline-block; position: relative; scroll-snap-align: start; transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); cursor: pointer; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+        .card { 
+            display: inline-block; position: relative; 
+            scroll-snap-align: start; 
+            transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            cursor: pointer; border-radius: 8px; overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
         .card.movie { min-width: 110px; width: 110px; height: 165px; }
         .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* פוקוס */
         .card:focus { transform: scale(1.15); z-index: 100; outline: 3px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; transition: 0.2s; color: white; }
         .card:focus .card-title-overlay { opacity: 1; }
 
+        /* --- מסכים --- */
         .screen { display: none; }
         #loading-screen { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; align-items: center; justify-content: center; }
+        
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; }
         .login-btn { background: var(--red); color: white; border: none; padding: 10px 30px; font-size: 20px; font-weight: bold; border-radius: 50px; margin-top: 20px; }
         .login-btn:focus { background: white; color: black; transform: scale(1.1); }
@@ -145,6 +210,7 @@
             nav.innerHTML = html;
         }
 
+        // --- היסטוריה ---
         function addToHistory(item) {
             if (!currentProfile) return;
             const key = `history_${currentProfile.n}`;
@@ -160,6 +226,7 @@
             return JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
         }
 
+        // --- ניווט ואירועים ---
         document.addEventListener('keydown', function(e) {
             const active = document.activeElement;
             if (e.key === 'ArrowRight') {
@@ -172,6 +239,7 @@
         });
 
         document.addEventListener('focus', function(e) {
+            // מירכוז אוטומטי - פועל גם אופקית וגם אנכית
             if (e.target && e.target.scrollIntoView) {
                 e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
             }
@@ -187,7 +255,6 @@
                         }
                     });
                 }
-                
                 if (!item) {
                     const history = getHistory();
                     item = history.find(h => h.id === id);
@@ -225,17 +292,32 @@
 
         function enterApp() { switchScreen('home'); renderHome(); }
 
+        // --- הלוגיקה החדשה של השורות והז'אנרים ---
         function renderHome() {
             const home = document.getElementById('home-view');
             home.innerHTML = '';
             
+            // 1. המשך צפייה
             const history = getHistory();
-            if (history.length > 0) home.innerHTML += renderRow("המשך צפייה", history);
+            if (history.length > 0) {
+                home.innerHTML += renderRow("המשך צפייה", history);
+            }
 
-            const catsToShow = currentProfile.type === 'kids' ? ['ילדים'] : ['סדרות', 'סרטים', 'ילדים'];
-            catsToShow.forEach(cat => {
-                const filtered = seriesData.filter(s => s.category === cat);
-                if(filtered.length > 0) home.innerHTML += renderRow(cat, filtered);
+            // 2. סינון לפי פרופיל (ילדים/מבוגרים)
+            const allowedCats = currentProfile.type === 'kids' ? ['ילדים'] : ['סדרות', 'סרטים'];
+            
+            // 3. איסוף כל הפריטים המותרים
+            const allAllowedItems = seriesData.filter(s => allowedCats.includes(s.category));
+
+            // 4. מציאת כל הז'אנרים הקיימים בפריטים האלו
+            const uniqueGenres = [...new Set(allAllowedItems.map(s => s.genre || s.category))];
+
+            // 5. יצירת בלוק נפרד לכל ז'אנר
+            uniqueGenres.forEach(genreName => {
+                const itemsInRow = allAllowedItems.filter(s => (s.genre || s.category) === genreName);
+                if(itemsInRow.length > 0) {
+                    home.innerHTML += renderRow(genreName, itemsInRow);
+                }
             });
         }
 
@@ -249,14 +331,29 @@
                         <div class="card-title-overlay">${s.title}</div>
                     </div>`;
             }).join('');
-            return `<div class="category-title">${title}</div><div class="row">${cardsHtml}</div>`;
+            
+            // עוטף ב-div של category-block בשביל הגלילה החכמה
+            return `
+            <div class="category-block">
+                <div class="category-title">${title}</div>
+                <div class="row">${cardsHtml}</div>
+            </div>`;
         }
 
         function navTo(cat) { 
             const home = document.getElementById('home-view');
             home.innerHTML = ''; 
+            
+            // בתוך תפריט צד, אנחנו מראים רק את הקטגוריה שנבחרה
             const filtered = seriesData.filter(s => s.category === cat);
-            if(filtered.length > 0) home.innerHTML = renderRow(cat, filtered);
+            const uniqueGenres = [...new Set(filtered.map(s => s.genre || s.category))];
+            
+            uniqueGenres.forEach(genreName => {
+                const itemsInRow = filtered.filter(s => (s.genre || s.category) === genreName);
+                if(itemsInRow.length > 0) {
+                    home.innerHTML += renderRow(genreName, itemsInRow);
+                }
+            });
         }
 
         function openContent(id) {
@@ -305,23 +402,18 @@
             const container = document.getElementById('video-container');
             container.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allowfullscreen style="width:100%; height:100%; border:none;"></iframe>`;
             switchScreen('video');
-            
             if (typeof AndroidControl !== 'undefined') {
                 AndroidControl.setVideoMode(true);
-                
-                // --- התיקון הקריטי: הפעלת האוטומציה מחדש בכל ניגון ---
-                automateDrive();
+                automateDrive(); // הפעלה אוטומטית גם בצפייה שנייה!
             }
         }
 
-        // פונקציה שמחכה ל-iframe ומפעילה את הניגון (מחליפה את הקוד באנדרואיד)
         function automateDrive() {
             var checks = 0;
             var det = setInterval(function() {
                 var f = document.querySelector('iframe');
                 if (f) {
                     clearInterval(det);
-                    // הזרקת CSS לניקוי
                     try {
                         var style = document.createElement('style');
                         style.innerHTML = '.ndfHFb-c4YZDc-Wr97p { display: none !important; }';
@@ -329,13 +421,11 @@
                     } catch(e) {}
 
                     f.focus();
-
-                    // שליחת פקודת לחיצה לאנדרואיד
                     setTimeout(function() {
                         if(window.AndroidControl) AndroidControl.triggerCenterClick();
                     }, 1500);
                 }
-                if (checks++ > 20) clearInterval(det); // מפסיק לחפש אחרי 10 שניות
+                if (checks++ > 20) clearInterval(det);
             }, 500);
         }
 
