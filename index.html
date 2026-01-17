@@ -23,12 +23,12 @@
         }
         *:focus { outline: none; }
         
-        /* --- Sidebar --- */
+        /* --- Sidebar (שכבה עליונה בצד) --- */
         .sidebar { 
             width: var(--sidebar-collapsed); 
             background: #050505; 
             display: flex; flex-direction: column; padding: 15px 5px; 
-            border-left: 1px solid #222; height: 100%; z-index: 500; 
+            border-left: 1px solid #222; height: 100%; z-index: 1000; /* מעל הכל */
             transition: width 0.3s ease; flex-shrink: 0; position: relative;
         }
         .sidebar:focus-within, .sidebar:hover { width: var(--sidebar-expanded); background: #000; }
@@ -46,44 +46,79 @@
         .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; }
         .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
 
-        /* --- אזור תוכן --- */
+        /* --- קונטיינר ראשי --- */
         .main-content { 
             flex: 1; 
             height: 100vh; 
-            overflow-y: auto; 
-            overflow-x: hidden;
-            scroll-behavior: smooth; 
-            display: flex; 
+            position: relative; /* כדי שהאלמנטים בפנים יסתדרו יחסית אליו */
+            overflow: hidden; /* מבטל גלילה כפולה */
+            display: flex;
             flex-direction: column;
-            scroll-snap-type: y mandatory; /* גלילה מגנטית אנכית */
-            padding-bottom: 50px;
         }
 
+        /* --- Hero (שכבת רקע מקובעת) --- */
+        .hero {
+            position: absolute; /* מקובע בתוך ה-main-content */
+            top: 0; left: 0; right: 0;
+            height: 65vh; /* תופס 65% מהגובה */
+            background-size: cover; background-position: top center;
+            transition: background-image 0.4s ease-out;
+            z-index: 0; /* השכבה הכי תחתונה */
+        }
+        .hero::after { 
+            content: ''; position: absolute; inset: 0; 
+            background: linear-gradient(to top, var(--bg) 10%, transparent 90%), 
+                        linear-gradient(to right, var(--bg) 0%, transparent 60%); 
+        }
+        .hero-content { 
+            position: absolute; bottom: 80px; right: 50px; z-index: 1; 
+            max-width: 55%; animation: fadeIn 0.5s; 
+        }
+        .hero-title { font-size: 55px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 15px black; }
+        .hero-desc { font-size: 18px; color: #eee; line-height: 1.4; text-shadow: 1px 1px 5px black; max-height: 100px; overflow: hidden; }
+
+        /* --- אזור הגלילה (שכבה קדמית) --- */
+        .scroll-wrapper {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow-y: auto; /* הגלילה מתרחשת כאן */
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            z-index: 2; /* מעל ה-Hero */
+            scroll-snap-type: y mandatory;
+        }
+
+        /* מרווח שקוף כדי שיראו את ה-Hero בהתחלה */
+        .spacer {
+            height: 50vh; /* דוחף את השורות למטה */
+            width: 100%;
+            pointer-events: none; /* מאפשר ללחוץ דרכו אם צריך */
+        }
+
+        /* הבלוק שמחזיק את השורות */
+        #home-view {
+            position: relative;
+            background: linear-gradient(to bottom, transparent, var(--bg) 15%); /* מעבר חלק מהירו לשחור */
+            padding-bottom: 50px;
+            min-height: 100vh;
+        }
+
+        /* --- עיצוב שורות --- */
         .category-block {
             scroll-snap-align: start; 
             scroll-margin-top: 20px;
             padding-bottom: 20px;
+            /* רקע כהה עדין מאחורי השורות כדי שהטקסט יהיה קריא כשהן עולות על ה-Hero */
+            background: rgba(15, 15, 15, 0.6); 
+            backdrop-filter: blur(5px); /* אפקט זכוכית יוקרתי */
         }
 
-        /* --- Hero --- */
-        .hero {
-            height: 55vh; width: 100%;
-            background-size: cover; background-position: top center;
-            position: relative; transition: background-image 0.4s ease-out;
-            flex-shrink: 0;
-            scroll-snap-align: start;
-        }
-        .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 5%, transparent 90%), linear-gradient(to right, var(--bg) 0%, transparent 60%); }
-        .hero-content { position: absolute; bottom: 100px; right: 50px; z-index: 10; max-width: 55%; animation: fadeIn 0.5s; }
-        .hero-title { font-size: 50px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 10px black; }
-        .hero-desc { font-size: 18px; color: #ccc; line-height: 1.4; text-shadow: 1px 1px 5px black; max-height: 100px; overflow: hidden; }
-
-        /* --- כרטיסיות --- */
-        .category-title { font-size: 18px; margin: 5px 40px 5px; font-weight: bold; color: #ddd; text-shadow: 1px 1px 2px black; }
+        .category-title { font-size: 20px; margin: 5px 40px 5px; font-weight: bold; color: #fff; text-shadow: 1px 1px 4px black; }
+        
         .row { 
             display: flex; gap: 12px; padding: 10px 40px 20px; 
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
-            scroll-snap-type: x mandatory; /* גלילה מגנטית אופקית */
+            scroll-snap-type: x mandatory; 
         }
         .row::-webkit-scrollbar { display: none; }
         
@@ -105,7 +140,6 @@
         /* --- מסכים --- */
         .screen { display: none; }
         #loading-screen { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; align-items: center; justify-content: center; }
-        
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; }
         .login-btn { background: var(--red); color: white; border: none; padding: 10px 30px; font-size: 20px; font-weight: bold; border-radius: 50px; margin-top: 20px; }
         .login-btn:focus { background: white; color: black; transform: scale(1.1); }
@@ -152,8 +186,13 @@
             </div>
         </div>
 
-        <div id="home-view" style="margin-top: -60px; z-index: 20; position: relative;"></div>
-        <div id="content-view" style="display: none; padding: 30px;"></div>
+        <div class="scroll-wrapper">
+            <div class="spacer"></div>
+            
+            <div id="home-view"></div>
+        </div>
+
+        <div id="content-view" style="display: none; padding: 30px; position: relative; z-index: 10; background: var(--bg);"></div>
     </div>
 
     <div id="video-container"></div>
@@ -246,6 +285,7 @@
                         }
                     });
                 }
+                
                 if (!item) {
                     const history = getHistory();
                     item = history.find(h => h.id === id);
@@ -287,10 +327,8 @@
             const home = document.getElementById('home-view');
             home.innerHTML = '';
             
-            // 1. המשך צפייה (עכשיו עם פרמטר true לאחידות)
             const history = getHistory();
             if (history.length > 0) {
-                // הפרמטר השלישי 'true' מכריח את כל הכרטיסיות להיות רחבות
                 home.innerHTML += renderRow("המשך צפייה", history, true);
             }
 
@@ -306,10 +344,8 @@
             });
         }
 
-        // --- הפונקציה המעודכנת: תומכת ב-forceUniform ---
         function renderRow(title, items, forceUniform = false) {
             const cardsHtml = items.map(s => {
-                // אם forceUniform הוא אמת, כולנו 'series' (רחב). אם לא, בודקים אם סרט או סדרה.
                 let shapeClass = forceUniform ? 'series' : (s.category === 'סרטים' || s.type === 'movie' ? 'movie' : 'series');
                 
                 return `
@@ -351,8 +387,8 @@
             addToHistory(item);
 
             const detailView = document.getElementById('content-view');
-            document.getElementById('home-view').style.display = 'none';
-            document.getElementById('hero').style.display = 'none';
+            document.querySelector('.scroll-wrapper').style.display = 'none'; // מסתיר את הגלילה של הבית
+            document.getElementById('hero').style.display = 'none'; // מסתיר את ההירו הגדול
             detailView.style.display = 'block';
             
             let html = '';
@@ -415,30 +451,27 @@
 
         function closeVideo() {
             document.getElementById('video-container').innerHTML = '';
-            switchScreen('details');
+            // במקום switchScreen כללי, נחזור לפרטים
+            document.getElementById('video-container').style.display = 'none';
+            document.getElementById('content-view').style.display = 'block';
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
         }
 
         function switchScreen(name) {
+            // איפוס תצוגות
             document.querySelectorAll('.screen').forEach(el => el.style.display = 'none');
             document.getElementById('video-container').style.display = 'none';
+            document.querySelector('.scroll-wrapper').style.display = 'none';
+            document.getElementById('content-view').style.display = 'none';
 
             if (name === 'auth') document.getElementById('auth-screen').style.display = 'flex';
             if (name === 'profiles') document.getElementById('profile-screen').style.display = 'flex';
             if (name === 'home') {
                 document.getElementById('sidebar').style.display = 'flex';
                 document.getElementById('app').style.display = 'flex';
-                document.getElementById('home-view').style.display = 'block';
-                document.getElementById('content-view').style.display = 'none';
-                document.getElementById('hero').style.display = 'block';
+                document.getElementById('hero').style.display = 'block'; // מציג הירו
+                document.querySelector('.scroll-wrapper').style.display = 'block'; // מציג גלילה
                 setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 500);
-            }
-            if (name === 'details') {
-                document.getElementById('sidebar').style.display = 'flex';
-                document.getElementById('app').style.display = 'flex';
-                document.getElementById('home-view').style.display = 'none';
-                document.getElementById('hero').style.display = 'none';
-                document.getElementById('content-view').style.display = 'block';
             }
             if (name === 'video') document.getElementById('video-container').style.display = 'block';
         }
@@ -448,22 +481,20 @@
                 closeVideo();
                 return;
             }
-            const detailView = document.getElementById('content-view');
-            const homeView = document.getElementById('home-view');
-            const hero = document.getElementById('hero');
             
-            if (detailView.style.display !== 'none') {
-                detailView.style.display = 'none';
-                homeView.style.display = 'block';
-                hero.style.display = 'block';
-                const cards = homeView.querySelectorAll('.card');
-                if(cards.length > 0) cards[0].focus();
+            // אם אנחנו במסך פרטים, חזור לבית
+            if (document.getElementById('content-view').style.display !== 'none') {
+                document.getElementById('content-view').style.display = 'none';
+                switchScreen('home'); // מחזיר את ה-Hero והגלילה
                 return;
             }
-            if (document.getElementById('app').style.display !== 'none') {
+            
+            // אם אנחנו בבית, חזור לפרופילים
+            if (document.querySelector('.scroll-wrapper').style.display === 'block') {
                 switchScreen('profiles');
                 return;
             }
+            
             if (window.AndroidControl) AndroidControl.exitApp();
         }
     </script>
