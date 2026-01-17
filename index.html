@@ -13,30 +13,30 @@
         .screen { display: none; }
         
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; }
-        .login-btn { background: var(--red); color: white; border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 8px; margin-top: 30px; cursor: pointer; }
+        .login-btn { background: var(--red); color: white; border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 8px; margin-top: 30px; }
         .login-btn:focus { background: white; color: black; transform: scale(1.1); }
 
         #profile-screen { position: fixed; inset: 0; background: #000; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .profile-container { display: flex; gap: 35px; }
-        .profile-box { text-align: center; padding: 10px; border-radius: 10px; cursor: pointer; }
-        /* תמונות פרופיל */
+        .profile-box { text-align: center; padding: 10px; border-radius: 10px; }
         .profile-img { width: 130px; height: 130px; border-radius: 50%; background-size: cover; background-color: #222; margin-bottom: 10px; border: 4px solid transparent; }
         .profile-box:focus { background: #222; transform: scale(1.15); }
         .profile-box:focus .profile-img { border-color: var(--red); }
 
         .sidebar { width: var(--sidebar-w); background: #000; flex-direction: column; padding: 20px; border-left: 1px solid #222; height: 100vh; }
+        
         /* לוגו */
         .logo { width: 100%; height: 100px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 30px; background-image: url('https://i.ibb.co/pWv6GZ7/av4.png'); }
         
-        .nav-item { padding: 15px; font-size: 20px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+        .nav-item { padding: 15px; font-size: 20px; border-radius: 8px; margin-bottom: 8px; }
         .nav-item:focus { background: var(--red); transform: translateX(-10px); font-weight: bold; }
 
         .main-content { flex: 1; overflow-y: auto; height: 100vh; scroll-behavior: smooth; padding-bottom: 50px; }
         
-        /* גלילה חלקה */
         .row { display: flex; gap: 20px; padding: 20px 40px; overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; scroll-snap-type: x mandatory; }
         .row::-webkit-scrollbar { display: none; }
-        .card { min-width: 230px; display: inline-block; position: relative; scroll-snap-align: center; transition: transform 0.3s; cursor: pointer; }
+        
+        .card { min-width: 230px; display: inline-block; position: relative; scroll-snap-align: center; transition: transform 0.3s; }
         .card img { width: 100%; height: 130px; border-radius: 6px; object-fit: cover; border: 3px solid transparent; }
         .card:focus { transform: scale(1.15); z-index: 10; }
         .card:focus img { border-color: white; }
@@ -89,6 +89,7 @@
 
         function login() {
             const provider = new firebase.auth.GoogleAuthProvider();
+            // Redirect מונע קריסה באנדרואיד כשהחלונות המרובים כבויים
             firebase.auth().signInWithRedirect(provider);
         }
 
@@ -202,16 +203,12 @@
 
         function playHD(id) {
             const container = document.getElementById('video-container');
-            // --- זה התיקון לסרטונים פרטיים! ---
-            // 1. שימוש ב-/preview?autoplay=1 במקום view
-            // 2. הוספת sandbox עם allow-same-origin (זה הקריטי!)
+            // בלי sandbox! זה מה שתקע את הנגן. קישור preview נקי.
             container.innerHTML = `<iframe 
                 src="https://drive.google.com/file/d/${id}/preview?autoplay=1" 
                 allow="autoplay; fullscreen"
-                sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-top-navigation allow-presentation"
                 style="width:100%; height:100%; border:none;">
             </iframe>`;
-            
             switchScreen('video');
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(true);
         }
