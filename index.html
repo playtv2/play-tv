@@ -3,104 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>HOT play</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
     <style>
-        :root { 
-            --red: #ff0055; 
-            --bg: #0f0f0f; 
-            --sidebar-collapsed: 70px; 
-            --sidebar-expanded: 220px; 
-        }
-        
+        :root { --red: #ff0055; --bg: #0f0f0f; --sidebar-collapsed: 70px; --sidebar-expanded: 220px; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         *:focus { outline: none; }
         
-        /* --- Sidebar --- */
-        .sidebar { 
-            width: var(--sidebar-collapsed); 
-            background: #050505; 
-            display: flex; flex-direction: column; padding: 15px 5px; 
-            border-left: 1px solid #222; height: 100%; z-index: 500; 
-            transition: width 0.3s ease; flex-shrink: 0; position: relative;
-        }
+        .sidebar { width: var(--sidebar-collapsed); background: #050505; display: flex; flex-direction: column; padding: 15px 5px; border-left: 1px solid #222; height: 100%; z-index: 500; transition: width 0.3s ease; flex-shrink: 0; position: relative; }
         .sidebar:focus-within, .sidebar:hover { width: var(--sidebar-expanded); background: #000; }
         
-        .logo { 
-            width: 100%; height: 50px; 
-            background-size: contain; background-repeat: no-repeat; background-position: center; 
-            margin-bottom: 30px; 
-            background-image: url('https://i.ibb.co/pWv6GZ7/av4.png'); 
-        }
+        .logo { width: 100%; height: 50px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 30px; background-image: url('https://i.ibb.co/pWv6GZ7/av4.png'); }
         
-        .nav-item { 
-            padding: 12px; font-size: 16px; border-radius: 8px; margin-bottom: 5px; 
-            cursor: pointer; white-space: nowrap; display: flex; align-items: center; color: #888; transition: 0.2s; 
-        }
+        .nav-item { padding: 12px; font-size: 16px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; color: #888; transition: 0.2s; }
         .nav-icon { font-size: 22px; min-width: 40px; text-align: center; }
         .nav-text { opacity: 0; transition: opacity 0.2s; margin-right: 10px; font-weight: 600; }
-        
         .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; }
         .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
 
-        /* --- תוכן --- */
-        .main-content { 
-            flex: 1; height: 100vh; overflow-y: auto; overflow-x: hidden;
-            scroll-behavior: smooth; display: flex; flex-direction: column;
-        }
+        .main-content { flex: 1; height: 100vh; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; display: flex; flex-direction: column; }
 
-        /* --- Hero --- */
-        .hero {
-            height: 55vh; width: 100%;
-            background-size: cover; background-position: top center;
-            position: relative; transition: background-image 0.4s ease-out;
-            flex-shrink: 0;
-        }
-        .hero::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to top, var(--bg) 5%, transparent 90%),
-                        linear-gradient(to right, var(--bg) 0%, transparent 60%);
-        }
-        .hero-content {
-            position: absolute; bottom: 100px; right: 50px; z-index: 10;
-            max-width: 55%; animation: fadeIn 0.5s;
-        }
+        .hero { height: 55vh; width: 100%; background-size: cover; background-position: top center; position: relative; transition: background-image 0.4s ease-out; flex-shrink: 0; }
+        .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 5%, transparent 90%), linear-gradient(to right, var(--bg) 0%, transparent 60%); }
+        .hero-content { position: absolute; bottom: 100px; right: 50px; z-index: 10; max-width: 55%; animation: fadeIn 0.5s; }
         .hero-title { font-size: 50px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 10px black; }
         .hero-desc { font-size: 18px; color: #ccc; line-height: 1.4; text-shadow: 1px 1px 5px black; max-height: 100px; overflow: hidden; }
 
-        /* --- כרטיסיות --- */
         .category-title { font-size: 18px; margin: 5px 40px 5px; font-weight: bold; color: #ddd; text-shadow: 1px 1px 2px black; }
-        .row { 
-            display: flex; gap: 12px; padding: 10px 40px 30px; 
-            overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
-            scroll-snap-type: x mandatory; 
-        }
+        .row { display: flex; gap: 12px; padding: 10px 40px 30px; overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; scroll-snap-type: x mandatory; }
         .row::-webkit-scrollbar { display: none; }
         
-        .card { 
-            display: inline-block; position: relative; 
-            scroll-snap-align: start; 
-            transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-            cursor: pointer; border-radius: 8px; overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-        }
+        .card { display: inline-block; position: relative; scroll-snap-align: start; transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); cursor: pointer; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
         .card.movie { min-width: 110px; width: 110px; height: 165px; }
         .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card img { width: 100%; height: 100%; object-fit: cover; }
         .card:focus { transform: scale(1.15); z-index: 100; outline: 3px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .card-title-overlay {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.8); padding: 5px; text-align: center;
-            font-size: 11px; opacity: 0; transition: 0.2s; color: white;
-        }
+        .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; transition: 0.2s; color: white; }
         .card:focus .card-title-overlay { opacity: 1; }
 
-        /* --- מסכים --- */
-        .screen { display: none; } /* הכל מוסתר בהתחלה */
-        
-        /* מסך טעינה התחלתי */
+        .screen { display: none; }
         #loading-screen { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; align-items: center; justify-content: center; }
-        
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; }
         .login-btn { background: var(--red); color: white; border: none; padding: 10px 30px; font-size: 20px; font-weight: bold; border-radius: 50px; margin-top: 20px; }
         .login-btn:focus { background: white; color: black; transform: scale(1.1); }
@@ -121,7 +67,7 @@
 </head>
 <body>
 
-    <div id="loading-screen"><div class="logo"></div></div>
+    <div id="loading-screen" style="display: flex;"><div class="logo"></div></div>
 
     <div id="auth-screen" class="screen">
         <h1 style="font-size: 60px; color: var(--red); margin: 0;">HOT Play</h1>
@@ -136,9 +82,6 @@
 
     <div class="sidebar screen" id="sidebar">
         <div class="logo"></div>
-        <div class="nav-item" tabindex="0" onclick="renderHome()">
-            <span class="nav-icon">🏠</span><span class="nav-text">בית</span>
-        </div>
         <div id="dynamic-nav"></div>
     </div>
 
@@ -168,10 +111,8 @@
         };
         firebase.initializeApp(firebaseConfig);
 
-        // משתנה לשמירת הפרופיל הנוכחי
         let currentProfile = null;
 
-        // הגדרת הפרופילים וההרשאות שלהם
         const profilesData = [
             { n: 'ניתאי', i: 'https://i.ibb.co/pWv6GZ7/av4.png', type: 'kids' },
             { n: 'אבא', i: 'https://i.ibb.co/pWv6GZ7/av1.png', type: 'adults' },
@@ -179,6 +120,45 @@
             { n: 'נועה', i: 'https://i.ibb.co/pWv6GZ7/av3.png', type: 'kids' },
             { n: 'אורי', i: 'https://i.ibb.co/pWv6GZ7/av5.png', type: 'kids' }
         ];
+
+        firebase.auth().onAuthStateChanged(user => {
+            document.getElementById('loading-screen').style.display = 'none';
+            if (user && user.email === "nitaylayish298@gmail.com") {
+                switchScreen('profiles');
+                loadProfiles();
+            } else {
+                switchScreen('auth');
+            }
+        });
+
+        function updateSidebar() {
+            const nav = document.getElementById('dynamic-nav');
+            let html = `<div class="nav-item" tabindex="0" onclick="renderHome()"><span class="nav-icon">🏠</span><span class="nav-text">בית</span></div>`;
+            
+            if (currentProfile.type === 'adults') {
+                html += `<div class="nav-item" tabindex="0" onclick="navTo('סדרות')"><span class="nav-icon">📺</span><span class="nav-text">סדרות</span></div>
+                         <div class="nav-item" tabindex="0" onclick="navTo('סרטים')"><span class="nav-icon">🎬</span><span class="nav-text">סרטים</span></div>`;
+            }
+            
+            html += `<div class="nav-item" tabindex="0" onclick="navTo('ילדים')"><span class="nav-icon">🧸</span><span class="nav-text">ילדים</span></div>
+                     <div class="nav-item" tabindex="0" style="margin-top:auto;" onclick="switchScreen('profiles')"><span class="nav-icon">🔄</span><span class="nav-text">החלף פרופיל</span></div>`;
+            nav.innerHTML = html;
+        }
+
+        function addToHistory(item) {
+            if (!currentProfile) return;
+            const key = `history_${currentProfile.n}`;
+            let history = JSON.parse(localStorage.getItem(key) || "[]");
+            history = history.filter(h => h.id !== item.id);
+            history.unshift(item);
+            if(history.length > 10) history.pop();
+            localStorage.setItem(key, JSON.stringify(history));
+        }
+
+        function getHistory() {
+            if (!currentProfile) return [];
+            return JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
+        }
 
         document.addEventListener('keydown', function(e) {
             const active = document.activeElement;
@@ -207,6 +187,11 @@
                         }
                     });
                 }
+                
+                if (!item) {
+                    const history = getHistory();
+                    item = history.find(h => h.id === id);
+                }
 
                 if (item) {
                     const hero = document.getElementById('hero');
@@ -222,68 +207,6 @@
             firebase.auth().signInWithRedirect(provider);
         }
 
-        firebase.auth().getRedirectResult().catch(console.error);
-
-        firebase.auth().onAuthStateChanged(user => {
-            document.getElementById('loading-screen').style.display = 'none'; // הסתרת מסך טעינה
-            
-            if (user && user.email === "nitaylayish298@gmail.com") {
-                switchScreen('profiles');
-                loadProfiles();
-            } else {
-                switchScreen('auth');
-            }
-        });
-
-        function handleBackPress() {
-            if(document.getElementById('video-container').innerHTML !== '') {
-                closeVideo();
-                return;
-            }
-            const detailView = document.getElementById('content-view');
-            const homeView = document.getElementById('home-view');
-            const hero = document.getElementById('hero');
-            
-            if (detailView.style.display !== 'none') {
-                detailView.style.display = 'none';
-                homeView.style.display = 'block';
-                hero.style.display = 'block';
-                const cards = homeView.querySelectorAll('.card');
-                if(cards.length > 0) cards[0].focus();
-                return;
-            }
-            // חזרה לפרופילים אם אנחנו בבית
-            if (document.getElementById('app').style.display !== 'none') {
-                switchScreen('profiles');
-                return;
-            }
-            if (window.AndroidControl) AndroidControl.exitApp();
-        }
-
-        function switchScreen(name) {
-            document.querySelectorAll('.screen').forEach(el => el.style.display = 'none');
-            document.getElementById('video-container').style.display = 'none';
-
-            if (name === 'auth') document.getElementById('auth-screen').style.display = 'flex';
-            if (name === 'profiles') document.getElementById('profile-screen').style.display = 'flex';
-            if (name === 'home') {
-                document.getElementById('sidebar').style.display = 'flex';
-                document.getElementById('app').style.display = 'flex';
-                document.getElementById('home-view').style.display = 'block';
-                document.getElementById('content-view').style.display = 'none';
-                document.getElementById('hero').style.display = 'block';
-                setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 500);
-            }
-            if (name === 'details') {
-                document.getElementById('sidebar').style.display = 'flex';
-                document.getElementById('app').style.display = 'flex';
-                document.getElementById('home-view').style.display = 'none';
-                document.getElementById('hero').style.display = 'none';
-                document.getElementById('content-view').style.display = 'block';
-            }
-            if (name === 'video') document.getElementById('video-container').style.display = 'block';
-        }
-
         function loadProfiles() {
             const list = document.getElementById('profile-list');
             list.innerHTML = profilesData.map(p => `
@@ -296,54 +219,23 @@
 
         function selectProfile(name) {
             currentProfile = profilesData.find(p => p.n === name);
+            updateSidebar();
             enterApp();
         }
 
-        function enterApp() { 
-            switchScreen('home'); 
-            renderHome(); 
-        }
-
-        // ניהול היסטוריית צפייה (Local Storage)
-        function addToHistory(item) {
-            if (!currentProfile) return;
-            let key = `history_${currentProfile.n}`;
-            let history = JSON.parse(localStorage.getItem(key) || "[]");
-            // הסרה אם כבר קיים כדי להקפיץ להתחלה
-            history = history.filter(h => h.id !== item.id);
-            history.unshift(item);
-            if(history.length > 10) history.pop(); // שמירת 10 אחרונים
-            localStorage.setItem(key, JSON.stringify(history));
-        }
-
-        function getHistory() {
-            if (!currentProfile) return [];
-            return JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
-        }
+        function enterApp() { switchScreen('home'); renderHome(); }
 
         function renderHome() {
             const home = document.getElementById('home-view');
             home.innerHTML = '';
             
-            // 1. קטגוריית "המשך צפייה"
             const history = getHistory();
-            if (history.length > 0) {
-                home.innerHTML += renderRow("המשך צפייה", history);
-            }
+            if (history.length > 0) home.innerHTML += renderRow("המשך צפייה", history);
 
-            // 2. סינון קטגוריות לפי סוג פרופיל
-            let catsToShow = [];
-            if (currentProfile.type === 'kids') {
-                catsToShow = ['ילדים'];
-            } else {
-                catsToShow = ['סדרות', 'סרטים'];
-            }
-
+            const catsToShow = currentProfile.type === 'kids' ? ['ילדים'] : ['סדרות', 'סרטים', 'ילדים'];
             catsToShow.forEach(cat => {
                 const filtered = seriesData.filter(s => s.category === cat);
-                if(filtered.length > 0) {
-                    home.innerHTML += renderRow(cat, filtered);
-                }
+                if(filtered.length > 0) home.innerHTML += renderRow(cat, filtered);
             });
         }
 
@@ -357,23 +249,31 @@
                         <div class="card-title-overlay">${s.title}</div>
                     </div>`;
             }).join('');
-            
             return `<div class="category-title">${title}</div><div class="row">${cardsHtml}</div>`;
         }
 
+        function navTo(cat) { 
+            const home = document.getElementById('home-view');
+            home.innerHTML = ''; 
+            const filtered = seriesData.filter(s => s.category === cat);
+            if(filtered.length > 0) home.innerHTML = renderRow(cat, filtered);
+        }
+
         function openContent(id) {
-            const item = seriesData.find(x => x.id === id);
-            // אם לא נמצא בראשי, נחפש בהיסטוריה (למקרה שהוסר)
+            let item = seriesData.find(x => x.id === id);
+            if (!item) {
+                const history = getHistory();
+                item = history.find(h => h.id === id);
+            }
             if (!item) return;
+
+            addToHistory(item);
 
             const detailView = document.getElementById('content-view');
             document.getElementById('home-view').style.display = 'none';
             document.getElementById('hero').style.display = 'none';
             detailView.style.display = 'block';
             
-            // הוספה להיסטוריה כשנכנסים (אפשר גם להעביר ל-playHD)
-            addToHistory(item);
-
             let html = '';
             if (item.type === 'movie' || item.category === 'סרטים') {
                 html = `<div style="min-height:80vh; display:flex; flex-direction:column; justify-content:center; background: linear-gradient(to right, black, transparent), url('${item.image}') no-repeat center/cover; padding:60px;">
@@ -405,13 +305,92 @@
             const container = document.getElementById('video-container');
             container.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allowfullscreen style="width:100%; height:100%; border:none;"></iframe>`;
             switchScreen('video');
-            if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(true);
+            
+            if (typeof AndroidControl !== 'undefined') {
+                AndroidControl.setVideoMode(true);
+                
+                // --- התיקון הקריטי: הפעלת האוטומציה מחדש בכל ניגון ---
+                automateDrive();
+            }
+        }
+
+        // פונקציה שמחכה ל-iframe ומפעילה את הניגון (מחליפה את הקוד באנדרואיד)
+        function automateDrive() {
+            var checks = 0;
+            var det = setInterval(function() {
+                var f = document.querySelector('iframe');
+                if (f) {
+                    clearInterval(det);
+                    // הזרקת CSS לניקוי
+                    try {
+                        var style = document.createElement('style');
+                        style.innerHTML = '.ndfHFb-c4YZDc-Wr97p { display: none !important; }';
+                        f.contentDocument.head.appendChild(style);
+                    } catch(e) {}
+
+                    f.focus();
+
+                    // שליחת פקודת לחיצה לאנדרואיד
+                    setTimeout(function() {
+                        if(window.AndroidControl) AndroidControl.triggerCenterClick();
+                    }, 1500);
+                }
+                if (checks++ > 20) clearInterval(det); // מפסיק לחפש אחרי 10 שניות
+            }, 500);
         }
 
         function closeVideo() {
             document.getElementById('video-container').innerHTML = '';
             switchScreen('details');
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
+        }
+
+        function switchScreen(name) {
+            document.querySelectorAll('.screen').forEach(el => el.style.display = 'none');
+            document.getElementById('video-container').style.display = 'none';
+
+            if (name === 'auth') document.getElementById('auth-screen').style.display = 'flex';
+            if (name === 'profiles') document.getElementById('profile-screen').style.display = 'flex';
+            if (name === 'home') {
+                document.getElementById('sidebar').style.display = 'flex';
+                document.getElementById('app').style.display = 'flex';
+                document.getElementById('home-view').style.display = 'block';
+                document.getElementById('content-view').style.display = 'none';
+                document.getElementById('hero').style.display = 'block';
+                setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 500);
+            }
+            if (name === 'details') {
+                document.getElementById('sidebar').style.display = 'flex';
+                document.getElementById('app').style.display = 'flex';
+                document.getElementById('home-view').style.display = 'none';
+                document.getElementById('hero').style.display = 'none';
+                document.getElementById('content-view').style.display = 'block';
+            }
+            if (name === 'video') document.getElementById('video-container').style.display = 'block';
+        }
+        
+        function handleBackPress() {
+            if(document.getElementById('video-container').innerHTML !== '') {
+                closeVideo();
+                return;
+            }
+            const detailView = document.getElementById('content-view');
+            const homeView = document.getElementById('home-view');
+            const hero = document.getElementById('hero');
+            
+            if (detailView.style.display !== 'none') {
+                detailView.style.display = 'none';
+                homeView.style.display = 'block';
+                hero.style.display = 'block';
+                const cards = homeView.querySelectorAll('.card');
+                if(cards.length > 0) cards[0].focus();
+                return;
+            }
+            if (document.getElementById('app').style.display !== 'none') {
+                switchScreen('profiles');
+                return;
+            }
+            if (window.AndroidControl) AndroidControl.exitApp();
         }
     </script>
 </body>
