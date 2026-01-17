@@ -19,22 +19,26 @@
         #profile-screen { position: fixed; inset: 0; background: #000; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .profile-container { display: flex; gap: 35px; }
         .profile-box { text-align: center; padding: 10px; border-radius: 10px; }
-        /* שנה גודל או עיצוב תמונת פרופיל כאן */
+        
+        /* --- כאן מעדכנים את עיצוב תמונות הפרופיל --- */
         .profile-img { width: 130px; height: 130px; border-radius: 50%; background-size: cover; background-color: #222; margin-bottom: 10px; border: 4px solid transparent; }
         .profile-box:focus { background: #222; transform: scale(1.15); }
         .profile-box:focus .profile-img { border-color: var(--red); }
 
         .sidebar { width: var(--sidebar-w); background: #000; flex-direction: column; padding: 20px; border-left: 1px solid #222; height: 100vh; }
         
-        /* --- כאן שים את הקישור ללוגו --- */
+        /* --- כאן שים את הקישור ללוגו שלך --- */
         .logo { width: 100%; height: 100px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 30px; }
         
         .nav-item { padding: 15px; font-size: 20px; border-radius: 8px; margin-bottom: 8px; }
         .nav-item:focus { background: var(--red); transform: translateX(-10px); font-weight: bold; }
 
         .main-content { flex: 1; overflow-y: auto; height: 100vh; scroll-behavior: smooth; padding-bottom: 50px; }
+        
+        /* --- תיקון גלילה (Netflix Style) --- */
         .row { display: flex; gap: 20px; padding: 20px 40px; overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; scroll-snap-type: x mandatory; }
         .row::-webkit-scrollbar { display: none; }
+        
         .card { min-width: 230px; display: inline-block; position: relative; scroll-snap-align: center; transition: transform 0.3s; }
         .card img { width: 100%; height: 130px; border-radius: 6px; object-fit: cover; border: 3px solid transparent; }
         .card:focus { transform: scale(1.15); z-index: 10; }
@@ -59,7 +63,7 @@
 
     <div class="sidebar screen" id="sidebar">
         <div class="logo" style="background-image: url('https://play-lh.googleusercontent.com/LU2EwCsrMFa8Cr8efvsH2epEOmrX_QwYLDWlWaAVSjPiZ0LeXy5kc7TYQPzGi0bm5zYd');"></div>
-        <div class="nav-item" tabindex="0" onclick="renderHome('all')">🏠 דף הבית</div>
+        <div class="nav-item" tabindex="0" onclick="renderHome('all')">בית</div>
         <div class="nav-item" tabindex="0" onclick="navTo('סדרות')">HOT VOD</div>
         <div class="nav-item" tabindex="0" onclick="navTo('סרטים')">VOD cinema</div>
         <div class="nav-item" tabindex="0" onclick="navTo('ילדים')">VOD young</div>
@@ -136,7 +140,7 @@
         }
 
         function loadProfiles() {
-            // --- ערוך כאן את שמות המשתמשים והתמונות ---
+            // --- כאן מעדכנים תמונות ושמות פרופילים ---
             const profiles = [
                 {n:'ניתאי', i:'https://i.ibb.co/pWv6GZ7/av4.png'},
                 {n:'אבא', i:'https://i.ibb.co/pWv6GZ7/av1.png'},
@@ -202,8 +206,14 @@
 
         function playHD(id) {
             const container = document.getElementById('video-container');
-            // חובה להשתמש ב-/view עבור קבצים פרטיים!
-            container.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/view" allowfullscreen></iframe>`;
+            // --- תיקון קריטי לניגון פרטי: Sandbox ---
+            // ההרשאות האלה מאפשרות לדפדפן להבין שזה מקור בטוח ולהעביר את הקוקיז של גוגל
+            container.innerHTML = `<iframe 
+                src="https://drive.google.com/file/d/${id}/preview" 
+                allowfullscreen 
+                sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-top-navigation allow-presentation">
+            </iframe>`;
+            
             switchScreen('video');
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(true);
         }
