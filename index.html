@@ -6,40 +6,118 @@
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
     <style>
-        :root { --red: #ff0055; --bg: #0b0b0b; --sidebar-w: 260px; }
+        :root { --red: #ff0055; --bg: #0f0f0f; --sidebar-collapsed: 80px; --sidebar-expanded: 240px; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         *:focus { outline: none; }
         
-        .screen { display: none; } /* כל המסכים מוסתרים כברירת מחדל */
+        /* --- Sidebar חכם (דיסני+) --- */
+        .sidebar { 
+            width: var(--sidebar-collapsed); 
+            background: rgba(0,0,0,0.9); 
+            display: flex; 
+            flex-direction: column; 
+            padding: 20px 10px; 
+            border-left: 1px solid #222; 
+            height: 100vh; 
+            z-index: 200; 
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            overflow: hidden;
+        }
+        /* כשנכנסים לפוקוס בתוך התפריט, הוא מתרחב */
+        .sidebar:focus-within, .sidebar:hover { width: var(--sidebar-expanded); background: #000; }
         
+        .logo { 
+            width: 100%; height: 60px; 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            margin-bottom: 40px; 
+            background-image: url('https://i.ibb.co/pWv6GZ7/av4.png'); 
+            transition: 0.3s;
+        }
+        
+        .nav-item { 
+            padding: 15px; 
+            font-size: 18px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            cursor: pointer; 
+            white-space: nowrap; 
+            display: flex; 
+            align-items: center; 
+            color: #aaa;
+            transition: 0.2s;
+        }
+        .nav-icon { font-size: 24px; min-width: 40px; text-align: center; }
+        .nav-text { opacity: 0; transition: opacity 0.2s; margin-right: 10px; }
+        
+        /* הצגת טקסט כשהתפריט פתוח */
+        .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; }
+        .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
+
+        /* --- Hero Section (החלק העליון המשתנה) --- */
+        .hero {
+            height: 55vh;
+            width: 100%;
+            background-size: cover;
+            background-position: top center;
+            position: relative;
+            transition: background-image 0.5s ease-in-out;
+        }
+        .hero::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to top, var(--bg) 10%, transparent 80%),
+                        linear-gradient(to right, var(--bg) 0%, transparent 60%);
+        }
+        .hero-content {
+            position: absolute; bottom: 40px; right: 60px; z-index: 10;
+            max-width: 600px;
+            animation: fadeIn 0.5s;
+        }
+        .hero-title { font-size: 50px; font-weight: bold; margin-bottom: 15px; text-shadow: 2px 2px 10px black; }
+        .hero-desc { font-size: 18px; color: #ddd; line-height: 1.5; text-shadow: 1px 1px 5px black; }
+
+        .main-content { flex: 1; overflow-y: auto; height: 100vh; scroll-behavior: smooth; display: flex; flex-direction: column; }
+        
+        /* --- שורות גלילה (Netflix Style) --- */
+        .category-title { font-size: 20px; margin: 0 40px 10px; font-weight: bold; color: #eee; }
+        .row { 
+            display: flex; gap: 15px; padding: 10px 40px 30px; 
+            overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
+            scroll-snap-type: x mandatory; 
+        }
+        .row::-webkit-scrollbar { display: none; }
+        
+        /* כרטיסיות מוקטנות */
+        .card { 
+            min-width: 160px; /* הקטנתי לבקשתך */
+            width: 160px;
+            display: inline-block; 
+            position: relative; 
+            scroll-snap-align: start; 
+            transition: transform 0.3s, border 0.3s; 
+            cursor: pointer; 
+        }
+        .card img { width: 100%; height: 220px; border-radius: 6px; object-fit: cover; border: 2px solid transparent; }
+        .card:focus { transform: scale(1.15); z-index: 100; }
+        .card:focus img { border-color: white; }
+        .card-title { font-size: 14px; margin-top: 5px; text-align: center; color: #ccc; white-space: normal; }
+
+        /* מסכים */
+        .screen { display: none; }
         #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; }
-        .login-btn { background: var(--red); color: white; border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 8px; margin-top: 30px; cursor: pointer; }
+        .login-btn { background: var(--red); color: white; border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 8px; margin-top: 30px; }
         .login-btn:focus { background: white; color: black; transform: scale(1.1); }
 
         #profile-screen { position: fixed; inset: 0; background: #000; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .profile-container { display: flex; gap: 35px; }
-        .profile-box { text-align: center; padding: 10px; border-radius: 10px; cursor: pointer; }
+        .profile-box { text-align: center; padding: 10px; border-radius: 10px; }
         .profile-img { width: 130px; height: 130px; border-radius: 50%; background-size: cover; background-color: #222; margin-bottom: 10px; border: 4px solid transparent; }
         .profile-box:focus { background: #222; transform: scale(1.15); }
         .profile-box:focus .profile-img { border-color: var(--red); }
 
-        .sidebar { width: var(--sidebar-w); background: #000; flex-direction: column; padding: 20px; border-left: 1px solid #222; height: 100vh; }
-        .logo { width: 100%; height: 100px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 30px; background-image: url('https://i.ibb.co/pWv6GZ7/av4.png'); }
-        .nav-item { padding: 15px; font-size: 20px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
-        .nav-item:focus { background: var(--red); transform: translateX(-10px); font-weight: bold; }
-
-        .main-content { flex: 1; overflow-y: auto; height: 100vh; scroll-behavior: smooth; padding-bottom: 50px; }
-        
-        .row { display: flex; gap: 20px; padding: 20px 40px; overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; }
-        .row::-webkit-scrollbar { display: none; }
-        
-        .card { min-width: 230px; display: inline-block; position: relative; transition: transform 0.3s; cursor: pointer; }
-        .card img { width: 100%; height: 130px; border-radius: 6px; object-fit: cover; border: 3px solid transparent; }
-        .card:focus { transform: scale(1.15); z-index: 10; }
-        .card:focus img { border-color: white; }
-
         #video-container { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; }
         iframe { width: 100%; height: 100%; border: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -57,15 +135,30 @@
 
     <div class="sidebar screen" id="sidebar">
         <div class="logo"></div>
-        <div class="nav-item" tabindex="0" onclick="renderHome('all')">🏠 דף הבית</div>
-        <div class="nav-item" tabindex="0" onclick="navTo('סדרות')">HOT VOD</div>
-        <div class="nav-item" tabindex="0" onclick="navTo('סרטים')">VOD cinema</div>
-        <div class="nav-item" tabindex="0" onclick="navTo('ילדים')">VOD young</div>
+        <div class="nav-item" tabindex="0" onclick="renderHome('all')">
+            <span class="nav-icon">🏠</span><span class="nav-text">דף הבית</span>
+        </div>
+        <div class="nav-item" tabindex="0" onclick="navTo('סדרות')">
+            <span class="nav-icon">📺</span><span class="nav-text">HOT VOD</span>
+        </div>
+        <div class="nav-item" tabindex="0" onclick="navTo('סרטים')">
+            <span class="nav-icon">🎬</span><span class="nav-text">VOD Cinema</span>
+        </div>
+        <div class="nav-item" tabindex="0" onclick="navTo('ילדים')">
+            <span class="nav-icon">🧸</span><span class="nav-text">VOD Young</span>
+        </div>
     </div>
 
     <div class="main-content screen" id="app">
-        <div id="home-view"></div>
-        <div id="content-view" style="display: none;"></div>
+        <div id="hero" class="hero" style="background-image: url('https://i.ibb.co/pWv6GZ7/av4.png');">
+            <div class="hero-content">
+                <div id="hero-title" class="hero-title">ברוכים הבאים</div>
+                <div id="hero-desc" class="hero-desc">בחר תוכן לצפייה</div>
+            </div>
+        </div>
+
+        <div id="home-view" style="margin-top: -50px; z-index: 20; position: relative;"></div>
+        <div id="content-view" style="display: none; padding: 40px;"></div>
     </div>
 
     <div id="video-container"></div>
@@ -82,11 +175,23 @@
         };
         firebase.initializeApp(firebaseConfig);
 
-        // --- מירכוז אוטומטי בטלוויזיה ---
-        // ברגע שאלמנט מקבל פוקוס, המסך גולל אליו למרכז
+        // --- לוגיקה לשינוי תמונת ה-Hero בפוקוס ---
         document.addEventListener('focus', function(e) {
+            // מירכוז אוטומטי
             if (e.target && e.target.scrollIntoView) {
                 e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
+
+            // עדכון ה-Hero אם זה כרטיס סרט
+            if (e.target.classList.contains('card')) {
+                const id = e.target.getAttribute('data-id');
+                const item = seriesData.find(s => s.id === id);
+                if (item) {
+                    const hero = document.getElementById('hero');
+                    document.getElementById('hero-title').innerText = item.title;
+                    document.getElementById('hero-desc').innerText = item.description || "תקציר לא זמין";
+                    hero.style.backgroundImage = `url('${item.image}')`;
+                }
             }
         }, true);
 
@@ -106,29 +211,24 @@
             }
         });
 
-        // --- ניהול חכם של כפתור החזור ---
         function handleBackPress() {
-            // אם אנחנו בנגן - נסגור אותו
             if(document.getElementById('video-container').innerHTML !== '') {
                 closeVideo();
                 return;
             }
-            
-            // אם אנחנו בדף פרטים - נחזור לבית (הסתרה/חשיפה)
             const detailView = document.getElementById('content-view');
             const homeView = document.getElementById('home-view');
+            const hero = document.getElementById('hero');
             
             if (detailView.style.display !== 'none') {
                 detailView.style.display = 'none';
                 homeView.style.display = 'block';
-                // מחזיר פוקוס לאלמנט האחרון שהיה עליו פוקוס (אם הדפדפן שמר)
-                // או לכרטיס הראשון
+                hero.style.display = 'block'; // מחזיר את ההירו
+                
                 const firstCard = homeView.querySelector('.card');
                 if(firstCard) firstCard.focus();
                 return;
             }
-            
-            // אם אנחנו בבית - נצא מהאפליקציה
             if (window.AndroidControl) AndroidControl.exitApp();
         }
 
@@ -140,10 +240,18 @@
             if (name === 'profiles') document.getElementById('profile-screen').style.display = 'flex';
             if (name === 'home') {
                 document.getElementById('sidebar').style.display = 'flex';
-                document.getElementById('app').style.display = 'block';
+                document.getElementById('app').style.display = 'flex';
                 document.getElementById('home-view').style.display = 'block';
                 document.getElementById('content-view').style.display = 'none';
-                setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 200);
+                document.getElementById('hero').style.display = 'block';
+                setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 500);
+            }
+            if (name === 'details') {
+                document.getElementById('sidebar').style.display = 'flex';
+                document.getElementById('app').style.display = 'flex';
+                document.getElementById('home-view').style.display = 'none';
+                document.getElementById('hero').style.display = 'none'; // מסתיר הירו בפרטים
+                document.getElementById('content-view').style.display = 'block';
             }
             if (name === 'video') document.getElementById('video-container').style.display = 'block';
         }
@@ -168,7 +276,6 @@
 
         function renderHome(filter = 'all') {
             const home = document.getElementById('home-view');
-            // בדיקה אם כבר יש תוכן כדי לא למחוק את המיקום
             if(home.innerHTML.trim() !== '' && filter === 'all') return; 
             
             home.innerHTML = '';
@@ -176,63 +283,67 @@
             cats.forEach(cat => {
                 const filtered = seriesData.filter(s => s.category === cat);
                 if(filtered.length === 0) return;
-                home.innerHTML += `<div style="font-size:24px; margin:30px 40px 10px; font-weight:bold;">${cat}</div>
+                home.innerHTML += `<div class="category-title">${cat}</div>
                     <div class="row">${filtered.map(s => `
-                        <div class="card" tabindex="0" onclick="openContent('${s.id}')">
+                        <div class="card" tabindex="0" data-id="${s.id}" onclick="openContent('${s.id}')">
                             <img src="${s.image}" loading="lazy">
-                            <div style="text-align:center; padding:8px; font-size:14px;">${s.title}</div>
+                            <div class="card-title">${s.title}</div>
                         </div>`).join('')}</div>`;
             });
         }
 
         function navTo(cat) { 
             const home = document.getElementById('home-view');
-            home.innerHTML = ''; // כאן כן מרעננים כי זה פילטר חדש
+            home.innerHTML = ''; 
             renderHome(cat); 
         }
 
         function openContent(id) {
             const item = seriesData.find(x => x.id === id);
-            const homeView = document.getElementById('home-view');
             const detailView = document.getElementById('content-view');
             
-            // במקום למחוק, אנחנו מסתירים. המיקום נשמר.
-            homeView.style.display = 'none';
+            // מסתיר את דף הבית וההירו
+            document.getElementById('home-view').style.display = 'none';
+            document.getElementById('hero').style.display = 'none';
             detailView.style.display = 'block';
             
             let html = '';
             if (item.type === 'movie' || item.category === 'סרטים') {
-                html = `<div style="height:100vh; background: linear-gradient(to right, black, transparent), url('${item.image}') no-repeat center/cover; padding:80px; display:flex; flex-direction:column; justify-content:center;">
-                    <h1 style="font-size:50px;">${item.title}</h1>
-                    <p style="max-width:500px;">${item.description}</p>
-                    <button class="login-btn" tabindex="0" onclick="playHD('${item.driveId}')">▶ צפה עכשיו</button>
+                // עיצוב סרט
+                html = `<div style="min-height:80vh; display:flex; flex-direction:column; justify-content:center; background: linear-gradient(to right, black, transparent), url('${item.image}') no-repeat center/cover; padding:60px;">
+                    <h1 style="font-size:60px; margin-bottom:20px;">${item.title}</h1>
+                    <p style="max-width:600px; font-size:22px; margin-bottom:30px;">${item.description}</p>
+                    <button class="login-btn" tabindex="0" onclick="playHD('${item.driveId}')">▶ נגן סרט</button>
                 </div>`;
             } else {
-                html = `<div style="padding:40px;">
-                    <h1 style="font-size:40px;">${item.title}</h1>
-                    <div class="row" style="flex-wrap: wrap; gap: 20px;">
+                // עיצוב סדרה - פרקים בגלילה אופקית (כמו הקטגוריות!)
+                html = `<div>
+                    <h1 style="font-size:50px; margin-bottom:20px;">${item.title}</h1>
+                    <p style="max-width:700px; color:#aaa; margin-bottom:40px;">${item.description}</p>
+                    <div class="category-title">פרקים</div>
+                    <div class="row" style="padding-bottom:20px;">
                         ${item.episodes.map(ep => `
-                        <div class="card" tabindex="0" onclick="playHD('${ep.driveId}')" style="min-width: 280px;">
+                        <div class="card" tabindex="0" style="min-width:280px; width:280px;" onclick="playHD('${ep.driveId}')">
                             <img src="${ep.image}" style="height:160px;">
-                            <div style="padding:10px;"><h3>פרק ${ep.number}</h3></div>
+                            <div class="card-title">פרק ${ep.number}</div>
                         </div>`).join('')}
                     </div>
                 </div>`;
             }
             detailView.innerHTML = html;
-            setTimeout(() => { const b=detailView.querySelector('.login-btn')||detailView.querySelector('.card'); if(b)b.focus(); }, 100);
+            setTimeout(() => { const b=detailView.querySelector('.login-btn')||detailView.querySelector('.card'); if(b)b.focus(); }, 200);
         }
 
         function playHD(id) {
             const container = document.getElementById('video-container');
             container.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allowfullscreen style="width:100%; height:100%; border:none;"></iframe>`;
-            document.getElementById('video-container').style.display = 'block';
+            switchScreen('video');
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(true);
         }
 
         function closeVideo() {
             document.getElementById('video-container').innerHTML = '';
-            document.getElementById('video-container').style.display = 'none';
+            switchScreen('details');
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
         }
     </script>
