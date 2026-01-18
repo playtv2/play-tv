@@ -15,8 +15,6 @@
             --bg: #0f0f0f; 
             --sidebar-width: 70px; 
             --sidebar-expanded: 220px;
-            --hero-height: 55vh; 
-            --rows-height: 45vh; 
         }
         
         body { 
@@ -28,12 +26,12 @@
         /* --- Sidebar --- */
         .sidebar { 
             width: var(--sidebar-width); 
-            background: rgba(0,0,0,0.9); 
+            background: #000; 
             display: flex; flex-direction: column; padding: 15px 5px; 
             border-left: 1px solid #222; height: 100%; z-index: 1000; 
             transition: width 0.3s ease; flex-shrink: 0; 
         }
-        .sidebar:focus-within, .sidebar:hover { width: var(--sidebar-expanded); background: #000; }
+        .sidebar:focus-within, .sidebar:hover { width: var(--sidebar-expanded); }
         
         .logo { 
             width: 100%; height: 50px; 
@@ -48,73 +46,74 @@
         .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; }
         .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
 
-        /* --- קונטיינר ראשי --- */
+        /* --- מבנה ראשי (Flex Column) --- */
         .main-content { 
             flex: 1; 
             height: 100vh; 
-            position: relative; 
-            overflow: hidden; 
-            display: flex;
-            flex-direction: column;
+            display: flex; 
+            flex-direction: column; /* חלוקה לגובה */
+            position: relative;
+            background: #000;
         }
 
-        /* --- רקע (Hero) --- */
-        .background-layer {
+        /* --- אזור עליון: מידע ותמונת רקע (לא גולל) --- */
+        .top-section {
+            height: 55%; /* תופס 55% מהגובה */
+            width: 100%;
+            position: relative;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        /* תמונת הרקע */
+        .hero-bg {
             position: absolute; inset: 0;
             background-size: cover; background-position: top center;
             transition: background-image 0.4s ease-out;
-            z-index: 0;
         }
-        .background-layer::after {
+        /* הצללה כדי שהטקסט יבלוט והחיבור למטה יהיה חלק */
+        .hero-bg::after {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to top, #0f0f0f 10%, rgba(15,15,15,0.9) 40%, transparent 80%);
+            background: linear-gradient(to top, #0f0f0f 5%, rgba(0,0,0,0.6) 50%, transparent 100%);
         }
 
-        /* --- אזור עליון (טקסט) --- */
-        .top-info-area {
-            height: var(--hero-height);
-            width: 100%;
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end; 
-            padding-right: 50px;
-            padding-bottom: 20px;
-            box-sizing: border-box;
-        }
-
-        .hero-title { font-size: 60px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 15px black; line-height: 1.1; }
-        .hero-desc { font-size: 20px; color: #eee; line-height: 1.4; text-shadow: 1px 1px 5px black; max-width: 60%; max-height: 100px; overflow: hidden; }
-
-        /* --- אזור תחתון (גלילה) --- */
-        .bottom-scroll-area {
-            height: var(--rows-height);
-            width: 100%;
-            position: relative;
+        /* הטקסט */
+        .hero-text {
+            position: absolute; bottom: 20px; right: 50px; left: 50px;
             z-index: 2;
-            overflow-y: auto; 
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        .hero-title { font-size: 60px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 15px black; line-height: 1; }
+        .hero-desc { font-size: 20px; color: #ddd; line-height: 1.3; text-shadow: 1px 1px 5px black; max-width: 60%; max-height: 80px; overflow: hidden; }
+
+        /* --- אזור תחתון: שורות גלילה --- */
+        .bottom-section {
+            height: 45%; /* תופס את שאר הגובה */
+            flex-grow: 1;
+            width: 100%;
+            background: #0f0f0f; /* צבע רקע כהה */
+            overflow-y: auto; /* הגלילה קורית רק פה! */
             overflow-x: hidden;
-            scroll-behavior: smooth;
-            padding-bottom: 40px;
             padding-top: 10px;
-            /* ביטלתי את ה-snap ב-CSS כי ה-JS מנהל את זה עכשיו טוב יותר */
+            padding-bottom: 40px;
+            box-sizing: border-box;
+            z-index: 2;
+            scroll-behavior: smooth;
         }
         
-        .bottom-scroll-area::-webkit-scrollbar { display: none; }
+        .bottom-section::-webkit-scrollbar { display: none; }
 
-        /* --- שורות --- */
+        /* --- עיצוב שורות --- */
         .category-block {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             padding-right: 40px;
-            /* זה המזהה שלנו לניווט */
-            display: block; 
+            display: block;
         }
 
-        .category-title { font-size: 20px; margin-bottom: 10px; font-weight: bold; color: #ddd; text-shadow: 1px 1px 3px black; }
+        .category-title { font-size: 18px; margin-bottom: 8px; font-weight: bold; color: #aaa; }
         
         .row { 
-            display: flex; gap: 15px; padding: 5px 0 15px; 
+            display: flex; gap: 15px; padding: 5px 0 10px; 
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
             scroll-snap-type: x mandatory; 
         }
@@ -124,15 +123,15 @@
             display: inline-block; position: relative; 
             scroll-snap-align: start; 
             transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-            cursor: pointer; border-radius: 8px; overflow: hidden;
+            cursor: pointer; border-radius: 6px; overflow: hidden;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             border: 2px solid transparent;
         }
-        .card.movie { min-width: 110px; width: 110px; height: 165px; }
-        .card.series { min-width: 210px; width: 210px; height: 118px; }
+        .card.movie { min-width: 100px; width: 100px; height: 150px; }
+        .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card img { width: 100%; height: 100%; object-fit: cover; }
         
-        .card:focus { transform: scale(1.1); z-index: 100; border-color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.9); }
+        .card:focus { transform: scale(1.1); z-index: 100; border-color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.9); }
         .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; transition: 0.2s; color: white; }
         .card:focus .card-title-overlay { opacity: 1; }
 
@@ -153,8 +152,6 @@
 
         #video-container { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; }
         iframe { width: 100%; height: 100%; border: none; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -178,14 +175,15 @@
     </div>
 
     <div class="main-content screen" id="app">
-        <div id="hero-bg" class="background-layer" style="background-image: url('https://i.ibb.co/pWv6GZ7/av4.png');"></div>
-
-        <div class="top-info-area">
-            <div id="hero-title" class="hero-title">HOT Play</div>
-            <div id="hero-desc" class="hero-desc">בחר תוכן לצפייה</div>
+        <div class="top-section">
+            <div id="hero-bg" class="hero-bg" style="background-image: url('https://i.ibb.co/pWv6GZ7/av4.png');"></div>
+            <div class="hero-text">
+                <div id="hero-title" class="hero-title">HOT Play</div>
+                <div id="hero-desc" class="hero-desc">בחר תוכן לצפייה</div>
+            </div>
         </div>
 
-        <div class="bottom-scroll-area" id="home-view"></div>
+        <div class="bottom-section" id="home-view"></div>
 
         <div id="content-view" style="display: none; padding: 30px; position: absolute; inset: 0; z-index: 20; background: var(--bg); overflow-y: auto;"></div>
     </div>
@@ -214,6 +212,11 @@
             { n: 'אורי', i: 'https://i.ibb.co/pWv6GZ7/av5.png', type: 'kids' }
         ];
 
+        // מנגנון למניעת מסך אפור נצחי
+        setTimeout(() => {
+            document.getElementById('loading-screen').style.display = 'none';
+        }, 5000); // אם תוך 5 שניות לא קרה כלום, העלם מסך טעינה
+
         firebase.auth().onAuthStateChanged(user => {
             document.getElementById('loading-screen').style.display = 'none';
             if (user && user.email === "nitaylayish298@gmail.com") {
@@ -227,22 +230,36 @@
         function updateSidebar() {
             const nav = document.getElementById('dynamic-nav');
             let html = `<div class="nav-item" tabindex="0" onclick="renderHome()"><span class="nav-icon">🏠</span><span class="nav-text">בית</span></div>`;
-            
             if (currentProfile.type === 'adults') {
                 html += `<div class="nav-item" tabindex="0" onclick="navTo('סדרות')"><span class="nav-icon">📺</span><span class="nav-text">סדרות</span></div>
                          <div class="nav-item" tabindex="0" onclick="navTo('סרטים')"><span class="nav-icon">🎬</span><span class="nav-text">סרטים</span></div>`;
             }
-            
             html += `<div class="nav-item" tabindex="0" onclick="navTo('ילדים')"><span class="nav-icon">🧸</span><span class="nav-text">ילדים</span></div>
                      <div class="nav-item" tabindex="0" style="margin-top:auto;" onclick="switchScreen('profiles')"><span class="nav-icon">🔄</span><span class="nav-text">החלף פרופיל</span></div>`;
             nav.innerHTML = html;
         }
 
-        // --- ניווט מקלדת חכם (זה התיקון הגדול!) ---
+        // --- היסטוריה ---
+        function addToHistory(item) {
+            if (!currentProfile) return;
+            const key = `history_${currentProfile.n}`;
+            let history = JSON.parse(localStorage.getItem(key) || "[]");
+            history = history.filter(h => h.id !== item.id);
+            history.unshift(item);
+            if(history.length > 10) history.pop();
+            localStorage.setItem(key, JSON.stringify(history));
+        }
+
+        function getHistory() {
+            if (!currentProfile) return [];
+            return JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
+        }
+
+        // --- ניווט חכם (מקלדת) ---
         document.addEventListener('keydown', function(e) {
             const active = document.activeElement;
             
-            // 1. פתיחת תפריט ימינה (One Click)
+            // תפריט (One Click Right)
             if (e.key === 'ArrowRight') {
                 if (active.classList.contains('card') && !active.previousElementSibling) {
                     e.preventDefault();
@@ -251,22 +268,24 @@
                 }
             }
 
-            // 2. ירידה קטגוריה שלמה למטה (One Click)
+            // ירידה חכמה בין קטגוריות
             if (e.key === 'ArrowDown') {
-                // בודקים אם אנחנו על כרטיס
                 const currentBlock = active.closest('.category-block');
                 if (currentBlock) {
-                    e.preventDefault(); // עוצר את הגלילה הקטועה של הדפדפן
+                    e.preventDefault();
                     const nextBlock = currentBlock.nextElementSibling;
                     if (nextBlock && nextBlock.classList.contains('category-block')) {
-                        // מוצא את הכרטיס הראשון בשורה הבאה ומעביר אליו פוקוס
                         const firstCard = nextBlock.querySelector('.card');
-                        if (firstCard) firstCard.focus(); // זה מפעיל את הגלילה האוטומטית
+                        if (firstCard) {
+                            firstCard.focus();
+                            // גלילה ידנית למרכז האלמנט החדש בתוך ה-bottom-section
+                            firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
                     }
                 }
             }
 
-            // 3. עלייה קטגוריה שלמה למעלה (One Click)
+            // עלייה חכמה
             if (e.key === 'ArrowUp') {
                 const currentBlock = active.closest('.category-block');
                 if (currentBlock) {
@@ -274,20 +293,17 @@
                     const prevBlock = currentBlock.previousElementSibling;
                     if (prevBlock && prevBlock.classList.contains('category-block')) {
                         const firstCard = prevBlock.querySelector('.card');
-                        if (firstCard) firstCard.focus();
+                        if (firstCard) {
+                            firstCard.focus();
+                            firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
                     }
                 }
             }
         });
 
-        // --- פוקוס ומירכוז ---
+        // --- פוקוס (עדכון Hero) ---
         document.addEventListener('focus', function(e) {
-            // מירכוז אוטומטי (קריטי לגלילה החלקה!)
-            if (e.target && e.target.scrollIntoView) {
-                // ממרכז את השורה שנבחרה באמצע החלק התחתון
-                e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-            }
-
             if (e.target.classList.contains('card')) {
                 const id = e.target.getAttribute('data-id');
                 let item = seriesData.find(s => s.id === id);
@@ -313,7 +329,6 @@
             }
         }, true);
 
-        // --- שאר הפונקציות (לוגין, פרופילים, נגן) ---
         function login() {
             const provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithRedirect(provider);
@@ -336,21 +351,6 @@
         }
 
         function enterApp() { switchScreen('home'); renderHome(); }
-
-        function addToHistory(item) {
-            if (!currentProfile) return;
-            const key = `history_${currentProfile.n}`;
-            let history = JSON.parse(localStorage.getItem(key) || "[]");
-            history = history.filter(h => h.id !== item.id);
-            history.unshift(item);
-            if(history.length > 10) history.pop();
-            localStorage.setItem(key, JSON.stringify(history));
-        }
-
-        function getHistory() {
-            if (!currentProfile) return [];
-            return JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
-        }
 
         function renderHome() {
             const home = document.getElementById('home-view');
@@ -395,6 +395,7 @@
             home.innerHTML = ''; 
             const filtered = seriesData.filter(s => s.category === cat);
             const uniqueGenres = [...new Set(filtered.map(s => s.genre || s.category))];
+            
             uniqueGenres.forEach(genreName => {
                 const itemsInRow = filtered.filter(s => (s.genre || s.category) === genreName);
                 if(itemsInRow.length > 0) home.innerHTML += renderRow(genreName, itemsInRow);
@@ -412,8 +413,9 @@
             addToHistory(item);
 
             const detailView = document.getElementById('content-view');
-            document.querySelector('.scroll-wrapper').style.display = 'none'; 
-            document.getElementById('hero-bg').style.display = 'none'; 
+            // מסתירים את התצוגה המפוצלת ומראים פרטים
+            document.querySelector('.top-section').style.display = 'none';
+            document.querySelector('.bottom-section').style.display = 'none';
             detailView.style.display = 'block';
             
             let html = '';
@@ -481,7 +483,8 @@
         function switchScreen(name) {
             document.querySelectorAll('.screen').forEach(el => el.style.display = 'none');
             document.getElementById('video-container').style.display = 'none';
-            document.querySelector('.scroll-wrapper').style.display = 'none';
+            document.querySelector('.top-section').style.display = 'none';
+            document.querySelector('.bottom-section').style.display = 'none';
             document.getElementById('content-view').style.display = 'none';
 
             if (name === 'auth') document.getElementById('auth-screen').style.display = 'flex';
@@ -489,10 +492,9 @@
             if (name === 'home') {
                 document.getElementById('sidebar').style.display = 'flex';
                 document.getElementById('app').style.display = 'flex';
-                document.getElementById('hero-bg').style.display = 'block';
-                document.querySelector('.scroll-wrapper').style.display = 'block';
-                document.querySelector('.top-info-area').style.display = 'flex'; // מציג טקסט עליון
-                document.getElementById('home-view').style.display = 'block';
+                document.querySelector('.top-section').style.display = 'block';
+                document.querySelector('.bottom-section').style.display = 'block';
+                
                 setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 500);
             }
             if (name === 'video') document.getElementById('video-container').style.display = 'block';
@@ -505,7 +507,7 @@
                 switchScreen('home');
                 return;
             }
-            if (document.querySelector('.scroll-wrapper').style.display === 'block') {
+            if (document.querySelector('.bottom-section').style.display === 'block') {
                 switchScreen('profiles');
                 return;
             }
