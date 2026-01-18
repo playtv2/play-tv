@@ -15,6 +15,8 @@
             --bg: #0f0f0f; 
             --sidebar-width: 70px; 
             --sidebar-expanded: 220px;
+            --hero-height: 55vh; 
+            --rows-height: 45vh; 
         }
         
         body { 
@@ -23,22 +25,16 @@
         }
         *:focus { outline: none; }
         
-        /* --- Sidebar --- */
+        /* Sidebar */
         .sidebar { 
-            width: var(--sidebar-width); 
-            background: #000; 
+            width: var(--sidebar-width); background: #000; 
             display: flex; flex-direction: column; padding: 15px 5px; 
             border-left: 1px solid #222; height: 100%; z-index: 1000; 
             transition: width 0.3s ease; flex-shrink: 0; 
         }
         .sidebar:focus-within, .sidebar:hover { width: var(--sidebar-expanded); }
         
-        .logo { 
-            width: 100%; height: 50px; 
-            background-size: contain; background-repeat: no-repeat; background-position: center; 
-            margin-bottom: 30px; 
-            background-image: url('https://i.ibb.co/pWv6GZ7/av4.png'); 
-        }
+        .logo { width: 100%; height: 50px; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 30px; background-image: url('https://i.ibb.co/pWv6GZ7/av4.png'); }
         
         .nav-item { padding: 12px; font-size: 16px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; color: #888; transition: 0.2s; }
         .nav-icon { font-size: 22px; min-width: 40px; text-align: center; }
@@ -46,103 +42,46 @@
         .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; }
         .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
 
-        /* --- מבנה ראשי (Flex Column) --- */
-        .main-content { 
-            flex: 1; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            position: relative;
-            background: #000;
-        }
+        /* Layout */
+        .main-content { flex: 1; height: 100vh; display: flex; flex-direction: column; position: relative; background: #000; }
 
-        /* --- אזור עליון: מידע ותמונת רקע (לא גולל) --- */
-        .top-section {
-            height: 55%; 
-            width: 100%;
-            position: relative;
-            flex-shrink: 0;
-            z-index: 1;
-        }
-
-        /* תמונת הרקע */
-        .hero-bg {
-            position: absolute; inset: 0;
-            background-size: cover; background-position: top center;
-            transition: background-image 0.4s ease-out;
-        }
-        .hero-bg::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to top, #0f0f0f 5%, rgba(0,0,0,0.6) 50%, transparent 100%);
-        }
-
-        /* הטקסט */
-        .hero-text {
-            position: absolute; bottom: 20px; right: 50px; left: 50px;
-            z-index: 2;
-            display: flex; flex-direction: column; justify-content: flex-end;
-        }
+        /* Top Section (Static) */
+        .top-section { height: 55%; width: 100%; position: relative; flex-shrink: 0; z-index: 1; }
+        .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: top center; transition: background-image 0.4s ease-out; }
+        .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #0f0f0f 5%, rgba(0,0,0,0.6) 50%, transparent 100%); }
+        .hero-text { position: absolute; bottom: 20px; right: 50px; left: 50px; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; }
         .hero-title { font-size: 60px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 15px black; line-height: 1; }
         .hero-desc { font-size: 20px; color: #ddd; line-height: 1.3; text-shadow: 1px 1px 5px black; max-width: 60%; max-height: 80px; overflow: hidden; }
 
-        /* --- אזור תחתון: שורות גלילה --- */
-        .bottom-section {
-            height: 45%; 
-            flex-grow: 1;
-            width: 100%;
-            background: #0f0f0f;
-            overflow-y: auto; /* הגלילה הופעלה! */
-            overflow-x: hidden;
-            padding-top: 10px;
-            padding-bottom: 40px;
-            box-sizing: border-box;
-            z-index: 2;
-            scroll-behavior: smooth; /* גלילה חלקה של הדפדפן */
+        /* Bottom Section (Scrollable) */
+        .bottom-section { 
+            height: 45%; flex-grow: 1; width: 100%; background: #0f0f0f; 
+            overflow-y: auto; overflow-x: hidden; 
+            padding-top: 10px; padding-bottom: 40px; box-sizing: border-box; z-index: 2; 
+            scroll-behavior: smooth; 
         }
-        
         .bottom-section::-webkit-scrollbar { display: none; }
 
-        /* --- עיצוב שורות --- */
-        .category-block {
-            margin-bottom: 25px;
-            padding-right: 40px;
-            display: block;
-            /* קריטי לזיהוי ע"י JS */
-            scroll-margin-top: 20px;
-        }
-
+        /* Rows */
+        .category-block { margin-bottom: 25px; padding-right: 40px; display: block; }
         .category-title { font-size: 18px; margin-bottom: 8px; font-weight: bold; color: #aaa; }
-        
-        .row { 
-            display: flex; gap: 15px; padding: 5px 0 10px; 
-            overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
-            scroll-snap-type: x mandatory; 
-        }
+        .row { display: flex; gap: 15px; padding: 5px 0 10px; overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; scroll-snap-type: x mandatory; }
         .row::-webkit-scrollbar { display: none; }
         
-        .card { 
-            display: inline-block; position: relative; 
-            scroll-snap-align: start; 
-            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-            cursor: pointer; border-radius: 6px; overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            border: 2px solid transparent;
-        }
+        .card { display: inline-block; position: relative; scroll-snap-align: start; transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); cursor: pointer; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid transparent; }
         .card.movie { min-width: 100px; width: 100px; height: 150px; }
         .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card img { width: 100%; height: 100%; object-fit: cover; }
-        
         .card:focus { transform: scale(1.1); z-index: 100; border-color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.9); }
         .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; transition: 0.2s; color: white; }
         .card:focus .card-title-overlay { opacity: 1; }
 
-        /* --- מסכים --- */
+        /* Screens */
         .screen { display: none; }
-        #loading-screen { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; align-items: center; justify-content: center; }
-        #auth-screen { position: fixed; inset: 0; background: #000; z-index: 10000; flex-direction: column; align-items: center; justify-content: center; }
+        #loading-screen, #auth-screen { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; align-items: center; justify-content: center; }
+        #auth-screen { flex-direction: column; z-index: 10000; }
         .login-btn { background: var(--red); color: white; border: none; padding: 10px 30px; font-size: 20px; font-weight: bold; border-radius: 50px; margin-top: 20px; }
         .login-btn:focus { background: white; color: black; transform: scale(1.1); }
-
         #profile-screen { position: fixed; inset: 0; background: #000; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
         .profile-container { display: flex; gap: 25px; }
         .profile-box { text-align: center; padding: 10px; border-radius: 10px; transition: 0.2s; }
@@ -150,14 +89,13 @@
         .profile-box:focus { transform: scale(1.15); }
         .profile-box:focus .profile-img { border-color: var(--red); }
         .profile-name { font-size: 16px; color: #ccc; }
-
         #video-container { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen" style="display: flex;"><div class="logo"></div></div>
+    <div id="loading-screen"><div class="logo"></div></div>
 
     <div id="auth-screen" class="screen">
         <h1 style="font-size: 60px; color: var(--red); margin: 0;">HOT Play</h1>
@@ -183,9 +121,7 @@
                 <div id="hero-desc" class="hero-desc">בחר תוכן לצפייה</div>
             </div>
         </div>
-
         <div class="bottom-section" id="home-view"></div>
-
         <div id="content-view" style="display: none; padding: 30px; position: absolute; inset: 0; z-index: 20; background: var(--bg); overflow-y: auto;"></div>
     </div>
 
@@ -204,7 +140,6 @@
         firebase.initializeApp(firebaseConfig);
 
         let currentProfile = null;
-
         const profilesData = [
             { n: 'ניתאי', i: 'https://i.ibb.co/pWv6GZ7/av4.png', type: 'kids' },
             { n: 'אבא', i: 'https://i.ibb.co/pWv6GZ7/av1.png', type: 'adults' },
@@ -212,6 +147,8 @@
             { n: 'נועה', i: 'https://i.ibb.co/pWv6GZ7/av3.png', type: 'kids' },
             { n: 'אורי', i: 'https://i.ibb.co/pWv6GZ7/av5.png', type: 'kids' }
         ];
+
+        setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 5000);
 
         firebase.auth().onAuthStateChanged(user => {
             document.getElementById('loading-screen').style.display = 'none';
@@ -235,7 +172,7 @@
             nav.innerHTML = html;
         }
 
-        // --- פונקציית הקסם לגלילה חלקה עם החצים ---
+        // --- ניווט חכם ומתוקן (כאן השינוי הגדול) ---
         document.addEventListener('keydown', function(e) {
             const active = document.activeElement;
             
@@ -248,44 +185,70 @@
                 }
             }
 
-            // למטה: דילוג לשורה הבאה
+            // ירידה למטה (Smart Grid)
             if (e.key === 'ArrowDown') {
-                // בודקים אם אנחנו על כרטיס
                 const currentBlock = active.closest('.category-block');
                 if (currentBlock) {
-                    e.preventDefault(); // חובה! עוצר גלילה ברירת מחדל
-                    const nextBlock = currentBlock.nextElementSibling;
-                    if (nextBlock && nextBlock.classList.contains('category-block')) {
-                        const firstCard = nextBlock.querySelector('.card');
-                        if (firstCard) {
-                            firstCard.focus(); // מעביר פוקוס
-                            // מחליק את המיכל התחתון למרכז השורה החדשה
-                            firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    e.preventDefault(); // עוצר גלילת דפדפן
+                    
+                    // מוצאים את השורה הנוכחית ואת כל השורות הקיימות
+                    const allBlocks = Array.from(document.querySelectorAll('.category-block'));
+                    const currentIndex = allBlocks.indexOf(currentBlock);
+                    
+                    if (currentIndex < allBlocks.length - 1) {
+                        const nextBlock = allBlocks[currentIndex + 1];
+                        
+                        // "זיכרון מיקום": מנסים להגיע לאותו אינדקס בשורה הבאה
+                        const currentCard = active.closest('.card');
+                        const currentRowCards = Array.from(currentBlock.querySelectorAll('.card'));
+                        const cardIndex = currentRowCards.indexOf(currentCard);
+                        
+                        const nextRowCards = Array.from(nextBlock.querySelectorAll('.card'));
+                        // מנסה לקחת את אותו מספר, או את האחרון אם השורה קצרה יותר
+                        const targetCard = nextRowCards[cardIndex] || nextRowCards[nextRowCards.length - 1];
+                        
+                        if (targetCard) {
+                            targetCard.focus();
+                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                     }
                 }
             }
 
-            // למעלה: דילוג לשורה הקודמת
+            // עלייה למעלה (Smart Grid)
             if (e.key === 'ArrowUp') {
                 const currentBlock = active.closest('.category-block');
                 if (currentBlock) {
                     e.preventDefault();
-                    const prevBlock = currentBlock.previousElementSibling;
-                    if (prevBlock && prevBlock.classList.contains('category-block')) {
-                        const firstCard = prevBlock.querySelector('.card');
-                        if (firstCard) {
-                            firstCard.focus();
-                            firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    const allBlocks = Array.from(document.querySelectorAll('.category-block'));
+                    const currentIndex = allBlocks.indexOf(currentBlock);
+                    
+                    if (currentIndex > 0) {
+                        const prevBlock = allBlocks[currentIndex - 1];
+                        
+                        const currentCard = active.closest('.card');
+                        const currentRowCards = Array.from(currentBlock.querySelectorAll('.card'));
+                        const cardIndex = currentRowCards.indexOf(currentCard);
+                        
+                        const prevRowCards = Array.from(prevBlock.querySelectorAll('.card'));
+                        const targetCard = prevRowCards[cardIndex] || prevRowCards[prevRowCards.length - 1];
+                        
+                        if (targetCard) {
+                            targetCard.focus();
+                            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                     }
                 }
             }
         });
 
-        // --- עדכון Hero בעת פוקוס ---
+        // --- עדכון Hero בפוקוס ---
         document.addEventListener('focus', function(e) {
+            // אם במקרה דפדפו לא עם החצים, נוודא שהגלילה תקינה
             if (e.target.classList.contains('card')) {
+                e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                
                 const id = e.target.getAttribute('data-id');
                 let item = seriesData.find(s => s.id === id);
                 if (!item) { 
@@ -296,7 +259,6 @@
                         }
                     });
                 }
-                
                 if (!item) {
                     const history = getHistory();
                     item = history.find(h => h.id === id);
@@ -311,6 +273,7 @@
             }
         }, true);
 
+        // --- שאר הפונקציות ללא שינוי ---
         function login() {
             const provider = new firebase.auth.GoogleAuthProvider();
             firebase.auth().signInWithRedirect(provider);
