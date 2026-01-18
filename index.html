@@ -51,14 +51,14 @@
             flex: 1; 
             height: 100vh; 
             display: flex; 
-            flex-direction: column; /* חלוקה לגובה */
+            flex-direction: column; 
             position: relative;
             background: #000;
         }
 
         /* --- אזור עליון: מידע ותמונת רקע (לא גולל) --- */
         .top-section {
-            height: 55%; /* תופס 55% מהגובה */
+            height: 55%; 
             width: 100%;
             position: relative;
             flex-shrink: 0;
@@ -71,7 +71,6 @@
             background-size: cover; background-position: top center;
             transition: background-image 0.4s ease-out;
         }
-        /* הצללה כדי שהטקסט יבלוט והחיבור למטה יהיה חלק */
         .hero-bg::after {
             content: ''; position: absolute; inset: 0;
             background: linear-gradient(to top, #0f0f0f 5%, rgba(0,0,0,0.6) 50%, transparent 100%);
@@ -88,17 +87,17 @@
 
         /* --- אזור תחתון: שורות גלילה --- */
         .bottom-section {
-            height: 45%; /* תופס את שאר הגובה */
+            height: 45%; 
             flex-grow: 1;
             width: 100%;
-            background: #0f0f0f; /* צבע רקע כהה */
-            overflow-y: auto; /* הגלילה קורית רק פה! */
+            background: #0f0f0f;
+            overflow-y: auto; /* הגלילה הופעלה! */
             overflow-x: hidden;
             padding-top: 10px;
             padding-bottom: 40px;
             box-sizing: border-box;
             z-index: 2;
-            scroll-behavior: smooth;
+            scroll-behavior: smooth; /* גלילה חלקה של הדפדפן */
         }
         
         .bottom-section::-webkit-scrollbar { display: none; }
@@ -108,6 +107,8 @@
             margin-bottom: 25px;
             padding-right: 40px;
             display: block;
+            /* קריטי לזיהוי ע"י JS */
+            scroll-margin-top: 20px;
         }
 
         .category-title { font-size: 18px; margin-bottom: 8px; font-weight: bold; color: #aaa; }
@@ -212,11 +213,6 @@
             { n: 'אורי', i: 'https://i.ibb.co/pWv6GZ7/av5.png', type: 'kids' }
         ];
 
-        // מנגנון למניעת מסך אפור נצחי
-        setTimeout(() => {
-            document.getElementById('loading-screen').style.display = 'none';
-        }, 5000); // אם תוך 5 שניות לא קרה כלום, העלם מסך טעינה
-
         firebase.auth().onAuthStateChanged(user => {
             document.getElementById('loading-screen').style.display = 'none';
             if (user && user.email === "nitaylayish298@gmail.com") {
@@ -239,27 +235,11 @@
             nav.innerHTML = html;
         }
 
-        // --- היסטוריה ---
-        function addToHistory(item) {
-            if (!currentProfile) return;
-            const key = `history_${currentProfile.n}`;
-            let history = JSON.parse(localStorage.getItem(key) || "[]");
-            history = history.filter(h => h.id !== item.id);
-            history.unshift(item);
-            if(history.length > 10) history.pop();
-            localStorage.setItem(key, JSON.stringify(history));
-        }
-
-        function getHistory() {
-            if (!currentProfile) return [];
-            return JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
-        }
-
-        // --- ניווט חכם (מקלדת) ---
+        // --- פונקציית הקסם לגלילה חלקה עם החצים ---
         document.addEventListener('keydown', function(e) {
             const active = document.activeElement;
             
-            // תפריט (One Click Right)
+            // ימינה: פתיחת תפריט
             if (e.key === 'ArrowRight') {
                 if (active.classList.contains('card') && !active.previousElementSibling) {
                     e.preventDefault();
@@ -268,24 +248,25 @@
                 }
             }
 
-            // ירידה חכמה בין קטגוריות
+            // למטה: דילוג לשורה הבאה
             if (e.key === 'ArrowDown') {
+                // בודקים אם אנחנו על כרטיס
                 const currentBlock = active.closest('.category-block');
                 if (currentBlock) {
-                    e.preventDefault();
+                    e.preventDefault(); // חובה! עוצר גלילה ברירת מחדל
                     const nextBlock = currentBlock.nextElementSibling;
                     if (nextBlock && nextBlock.classList.contains('category-block')) {
                         const firstCard = nextBlock.querySelector('.card');
                         if (firstCard) {
-                            firstCard.focus();
-                            // גלילה ידנית למרכז האלמנט החדש בתוך ה-bottom-section
+                            firstCard.focus(); // מעביר פוקוס
+                            // מחליק את המיכל התחתון למרכז השורה החדשה
                             firstCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                     }
                 }
             }
 
-            // עלייה חכמה
+            // למעלה: דילוג לשורה הקודמת
             if (e.key === 'ArrowUp') {
                 const currentBlock = active.closest('.category-block');
                 if (currentBlock) {
@@ -302,7 +283,7 @@
             }
         });
 
-        // --- פוקוס (עדכון Hero) ---
+        // --- עדכון Hero בעת פוקוס ---
         document.addEventListener('focus', function(e) {
             if (e.target.classList.contains('card')) {
                 const id = e.target.getAttribute('data-id');
@@ -315,6 +296,7 @@
                         }
                     });
                 }
+                
                 if (!item) {
                     const history = getHistory();
                     item = history.find(h => h.id === id);
@@ -351,6 +333,21 @@
         }
 
         function enterApp() { switchScreen('home'); renderHome(); }
+
+        function addToHistory(item) {
+            if (!currentProfile) return;
+            const key = `history_${currentProfile.n}`;
+            let history = JSON.parse(localStorage.getItem(key) || "[]");
+            history = history.filter(h => h.id !== item.id);
+            history.unshift(item);
+            if(history.length > 10) history.pop();
+            localStorage.setItem(key, JSON.stringify(history));
+        }
+
+        function getHistory() {
+            if (!currentProfile) return [];
+            return JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
+        }
 
         function renderHome() {
             const home = document.getElementById('home-view');
@@ -395,7 +392,6 @@
             home.innerHTML = ''; 
             const filtered = seriesData.filter(s => s.category === cat);
             const uniqueGenres = [...new Set(filtered.map(s => s.genre || s.category))];
-            
             uniqueGenres.forEach(genreName => {
                 const itemsInRow = filtered.filter(s => (s.genre || s.category) === genreName);
                 if(itemsInRow.length > 0) home.innerHTML += renderRow(genreName, itemsInRow);
@@ -413,7 +409,6 @@
             addToHistory(item);
 
             const detailView = document.getElementById('content-view');
-            // מסתירים את התצוגה המפוצלת ומראים פרטים
             document.querySelector('.top-section').style.display = 'none';
             document.querySelector('.bottom-section').style.display = 'none';
             detailView.style.display = 'block';
