@@ -29,6 +29,24 @@ const seriesData = [
         ]
     },
 
+
+    {
+        id: "sonic-prime",
+        type: "series", 
+        category: "ילדים", 
+        genre: "אקשן והרפתקאות", 
+        title: "סוניק פריים",
+        description: "קרב הרסני נגד דוקטור אגמן מנפץ את היקום, וסוניק מתרוצץ בין ממדים מקבילים כדי לחדש את הקשר עם חבריו ולהציל את העולם.",
+        image: "https://m.media-amazon.com/images/S/pv-target-images/f5e30a40e6b2f690d3fd0ab63474c47267e08065d8bdad0f6e6e16eee9208170._SX1080_FMjpg_.jpg",
+        episodes: [
+            { number: "1", desc: "פרק ראשון", image: "https://occ-0-2621-2774.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABSt7pp11XkzMqnShcfPuluIo3tnEbW4VpWzoIDJ9RJ4s04Z64ifeTExm9rcCDzTfTiKHZNCn04RGZWJ556kw3bMDD5JfMS4d3opnhXd5BdgDnTZ6bVm_23Wc.jpg?r=199", driveId: "1UyL5Tv98kAPGSkJ-r4R6AWs6DxvTMrSC" },
+            { number: "2", desc: "פרק שני", image: "", driveId: "1AIg7ZS1gs8jWSBrYtsSnP3uVcKxfg_1J" },
+            { number: "3", desc: "פרק שלישי", image: "", driveId: "11PNcE6mbEj8fHVd8s3JQYy2KVN34pVj0" }
+        ]
+    },
+
+    
+
     // --- סרט לילדים ---
     {
         id: "zootopia2",
