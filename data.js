@@ -92,7 +92,7 @@ const seriesData = [
 
     {
         id: "liloandstich",
-        type: "ילדים", 
+        type: "movie", 
         category: "סרטים",
         genre: "סרטים חינם",
         title: "לילו וסטיץ׳ 2025",
