@@ -6,7 +6,7 @@ const seriesData = [
         category: "סדרות", 
         genre: "דרמות ישראליות", // <-- הוספתי את זה! זו תהיה הכותרת של השורה
         title: "צייר המערות",
-        description: "בדיקה.",
+        description: "תקציר.",
         image: "https://i.ytimg.com/vi/VaFdaHs3isc/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBE65d-3PGwO9UtTaTya5fIXmgOlA",
         episodes: [
             { number: "1", desc: "פרק ראשון", image: "https://i.ytimg.com/vi/VaFdaHs3isc/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBE65d-3PGwO9UtTaTya5fIXmgOlA", driveId: "1-TJDR-bjqha_x-DHndKd-uvGIuQU3Lz0" },
