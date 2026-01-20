@@ -8,7 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
     <style>
-        /* הגדרת שחור מוחלט לרקע */
         :root { --red: #ff0055; --bg: #000000; --sidebar-width: 70px; --sidebar-expanded: 220px; }
         
         body { 
@@ -55,7 +54,6 @@
 
         .top-section { height: 55%; width: 100%; position: relative; flex-shrink: 0; z-index: 1; }
         .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: top center; transition: background-image 0.4s ease-out; }
-        /* הדרגה לשחור מוחלט */
         .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #000000 5%, rgba(0,0,0,0.6) 50%, transparent 100%); }
         .hero-text { position: absolute; bottom: 20px; right: 50px; left: 50px; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; }
         .hero-title { font-size: 60px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 15px black; line-height: 1; }
@@ -73,10 +71,13 @@
         .category-block { margin-bottom: 5px; padding-right: 40px; display: block; }
         .category-title { font-size: 18px; margin-bottom: 0px; font-weight: bold; color: #aaa; }
         
+        /* תיקון הרווח בהתחלה */
         .row { 
             display: flex; gap: 15px; 
-            /* תיקון החיתוך: הוספתי 60px ריפוד בצדדים כדי שהזום לא ייחתך */
-            padding: 40px 60px 40px 60px; 
+            /* ריפוד רק למעלה ולמטה */
+            padding: 40px 0 40px 0;
+            /* שימוש ב-scroll-padding למניעת חיתוך בזום מבלי ליצור רווח התחלתי */
+            scroll-padding: 0 60px;
             margin-top: -20px; 
             margin-bottom: -10px;
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
@@ -88,7 +89,6 @@
             display: inline-block; position: relative; cursor: pointer; 
             border-radius: 6px; overflow: hidden; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-            /* מסגרת בסיס שקופה ודקה */
             border: 2px solid transparent; 
             transition: transform 0.2s, border-color 0.2s; 
             scroll-snap-align: start; flex-shrink: 0; 
@@ -98,13 +98,12 @@
         .card.series, .card.movie { min-width: 200px; width: 200px; height: 112px; }
         .card img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* עיצוב הפוקוס: מסגרת דקה ולבנה, בלי זוהר */
         .card:focus { 
             transform: scale(1.15); 
             z-index: 100; 
-            border-width: 2px; /* דק */
-            border-color: #ffffff; /* לבן נקי */
-            box-shadow: 0 10px 20px rgba(0,0,0,0.9); /* צל שחור בלבד */
+            border-width: 2px; 
+            border-color: #ffffff; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.9); 
             outline: none; 
         }
 
@@ -212,16 +211,12 @@
 
         function updateSidebar() {
             const nav = document.getElementById('dynamic-nav');
-            // אייקון חיפוש + כפתור ראשי
             let html = `<div class="nav-item" tabindex="0" onclick="showSearch()"><span class="nav-icon">🔍</span><span class="nav-text">חיפוש</span></div>
                         <div class="nav-item" tabindex="0" onclick="renderHome()"><span class="nav-icon">🏠</span><span class="nav-text">ראשי</span></div>`;
-            
-            // תפריט החלפת פרופיל
             html += `<div class="nav-item" tabindex="0" style="margin-top:auto;" onclick="switchScreen('profiles')"><span class="nav-icon">🔄</span><span class="nav-text">החלף פרופיל</span></div>`;
             nav.innerHTML = html;
         }
 
-        // --- לוגיקה של החיפוש ---
         function showSearch() {
             const home = document.getElementById('home-view');
             document.querySelector('.top-section').style.display = 'none';
@@ -240,12 +235,11 @@
                 return;
             }
 
-            // חיפוש חכם בהתאם לפרופיל
             let allowedCats = [];
             if (currentProfile.type === 'kids') {
                 allowedCats = ['ילדים'];
             } else {
-                allowedCats = ['סדרות', 'סרטים']; // מבוגרים לא מחפשים בתכני ילדים (לפי הבקשה)
+                allowedCats = ['סדרות', 'סרטים'];
             }
 
             const results = seriesData.filter(s => {
@@ -263,7 +257,6 @@
             }
         }
 
-        // --- בקר ניווט חכם ---
         window.addEventListener('keydown', function(e) {
             const active = document.activeElement;
             
@@ -433,10 +426,8 @@
             return JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
         }
 
-        // --- כאן השינוי הגדול: מיון לפי פרופיל (בלי מסך בית כללי) ---
         function renderHome() {
             const home = document.getElementById('home-view');
-            // וידוא שהבאנר העליון מוצג
             document.querySelector('.top-section').style.display = 'block';
             home.innerHTML = '';
             
@@ -445,13 +436,10 @@
                 home.innerHTML += renderRow("המשך צפייה", history, true);
             }
 
-            // בחירת קטגוריות לפי סוג הפרופיל
             let allowedCats = [];
             if (currentProfile.type === 'kids') {
-                // לילדים: רק קטגוריית "ילדים"
                 allowedCats = ['ילדים'];
             } else {
-                // למבוגרים: רק "סדרות" ו"סרטים" (בלי ילדים)
                 allowedCats = ['סדרות', 'סרטים'];
             }
 
