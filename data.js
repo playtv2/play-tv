@@ -38,7 +38,7 @@ const seriesData = [
         category: "ילדים", 
         genre: "אקשן והרפתקאות", 
         title: "סוניק פריים",
-        description: "קרב הרסני נגד דוקטור אגמן מנפץ את היקום...",
+        description: "קרב הרסני נגד דוקטור אגמן מנפץ את היקום, וסוניק מתרוצץ בין ממדים מקבילים כדי לחדש את הקשר עם חבריו ולהציל את העולם.",
         // 👇 וודא שיש קובץ בשם sonic.jpg
         image: "./images/sonicprime.jpg",
         episodes: [
