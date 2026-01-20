@@ -71,18 +71,28 @@
         .category-block { margin-bottom: 5px; padding-right: 40px; display: block; }
         .category-title { font-size: 18px; margin-bottom: 0px; font-weight: bold; color: #aaa; }
         
-        /* תיקון הרווח בהתחלה */
         .row { 
             display: flex; gap: 15px; 
-            /* ריפוד רק למעלה ולמטה */
+            /* החזרתי לריפוד אנכי בלבד */
             padding: 40px 0 40px 0;
-            /* שימוש ב-scroll-padding למניעת חיתוך בזום מבלי ליצור רווח התחלתי */
-            scroll-padding: 0 60px;
             margin-top: -20px; 
             margin-bottom: -10px;
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
             scroll-snap-type: x mandatory; 
         }
+        
+        /* --- התיקון לחיתוך בצד ימין --- */
+        /* הוספת אלמנטים נסתרים בהתחלה ובסוף כדי לתת מקום לזום */
+        .row::before,
+        .row::after {
+            content: '';
+            display: block;
+            flex-shrink: 0;
+            width: 25px; /* רוחב באפר שמאפשר לזום להתרחב בלי להיחתך */
+            height: 1px;
+        }
+        /* -------------------------------- */
+
         .row::-webkit-scrollbar { display: none; }
         
         .card { 
