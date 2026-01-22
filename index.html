@@ -73,15 +73,13 @@
         
         .row { 
             display: flex; gap: 15px; 
-            /* הסרתי לחלוטין את הריפוד בצדדים - התמונה תתחיל בול בהתחלה */
-            padding: 40px 0 40px 0; 
+            /* ריפוד מינימלי חובה (30px) בצד ימין כדי למנוע חיתוך בזום */
+            /* זה גם נראה טוב יותר בטלוויזיה (Safe Area) */
+            padding: 40px 0 40px 30px; 
             margin-top: -20px; 
             margin-bottom: -10px;
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
             scroll-snap-type: x mandatory; 
-            /* וידוא שאין ריפוד נסתר */
-            padding-right: 0 !important;
-            padding-left: 50px; /* רק בסוף שיהיה מקום */
         }
         .row::-webkit-scrollbar { display: none; }
         
@@ -93,18 +91,16 @@
             transition: transform 0.2s, border-color 0.2s; 
             scroll-snap-align: start; flex-shrink: 0; 
             z-index: 1;
-            /* ברירת מחדל */
+            /* ברירת מחדל: גדל מהמרכז */
             transform-origin: center center;
         }
 
-        /* --- הפתרון המדעי לבעיית החיתוך --- */
-        /* האלמנט הראשון ב-RTL (צד ימין) יגדל שמאלה בלבד */
-        .row .card:first-of-type {
-            transform-origin: right center !important;
+        /* הפכתי את זה ל- !important כדי שיתפוס על כל השורות בוודאות */
+        .row .card:first-child {
+            transform-origin: right center !important; /* גדל שמאלה */
         }
-        /* האלמנט האחרון יגדל ימינה בלבד */
-        .row .card:last-of-type {
-            transform-origin: left center !important;
+        .row .card:last-child {
+            transform-origin: left center !important; /* גדל ימינה */
         }
         
         /* גדלים */
@@ -571,12 +567,6 @@
                 AndroidControl.setVideoMode(true);
                 automateDrive();
             }
-            // --- תיקון: זיהוי אוטומטי של יציאה ממסך מלא ---
-            document.onfullscreenchange = function() {
-                if (!document.fullscreenElement) {
-                    closeVideo(); // אם יצאת ממסך מלא -> חזור לאפליקציה
-                }
-            };
         }
 
         function playNextEpisode() {
@@ -613,26 +603,27 @@
             }, 500);
         }
 
-        // --- פונקציית היציאה המתוקנת והסופית ---
+        // --- תיקון סופי למסך השחור ---
         function closeVideo() {
-            const container = document.getElementById('video-container');
-            container.innerHTML = ''; // מחיקת הנגן מיד
-            container.style.display = 'none';
-            
-            // חזרה מיידית לפרטי הסדרה
+            // 1. קודם כל נדאג שהדף הראשי מוצג
             document.getElementById('content-view').style.display = 'block';
-            document.querySelector('.top-section').style.display = 'none'; 
+            document.querySelector('.top-section').style.display = 'none';
             document.querySelector('.bottom-section').style.display = 'none';
-            
+
+            // 2. עכשיו נעיף את הוידאו
+            const vidContainer = document.getElementById('video-container');
+            vidContainer.innerHTML = '';
+            vidContainer.style.display = 'none';
+
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
 
-            // שחזור פוקוס לפרק האחרון
+            // 3. החזרת פוקוס לכרטיסייה האחרונה
             if (currentPlayingId) {
                 setTimeout(() => {
-                    const lastPlayedElement = document.querySelector(`[data-id="${currentPlayingId}"]`);
-                    if (lastPlayedElement) {
-                        lastPlayedElement.focus();
-                        lastPlayedElement.scrollIntoView({block: 'center', inline: 'center'});
+                    const el = document.querySelector(`[data-id="${currentPlayingId}"]`);
+                    if (el) {
+                        el.focus();
+                        el.scrollIntoView({block: 'center', inline: 'center'});
                     }
                 }, 100);
             }
@@ -658,12 +649,10 @@
         }
         
         function handleBackPress() {
-            // אם וידאו פתוח (גם אם שחור/ריק) - סגור אותו בכוח
             if(document.getElementById('video-container').style.display === 'block') { 
                 closeVideo(); 
                 return; 
             }
-            // אם אנחנו בדף סדרה - חזור לבית
             if (document.getElementById('content-view').style.display !== 'none') {
                 document.getElementById('content-view').style.display = 'none';
                 switchScreen('home');
