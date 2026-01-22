@@ -11,12 +11,12 @@
         :root { --red: #ff0055; --bg: #000000; --sidebar-width: 70px; --sidebar-expanded: 220px; }
         
         body { 
-            background: #000; color: white; font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; 
             margin: 0; padding: 0; width: 100vw; height: 100vh; 
             overflow: hidden; display: flex; position: fixed; inset: 0;
         }
-
-        /* Sidebar */
+        *:focus { outline: none; }
+        
         .sidebar { 
             width: var(--sidebar-width); background: #000; 
             display: flex; flex-direction: column; padding: 15px 5px; 
@@ -38,31 +38,30 @@
         .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; visibility: visible; }
         .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
 
-        /* Main Content */
         .main-content { flex: 1; height: 100vh; display: flex; flex-direction: column; position: relative; background: #000; overflow: hidden; }
 
         .top-section { height: 55%; width: 100%; position: relative; flex-shrink: 0; z-index: 1; }
-        .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: top center; }
+        .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: top center; transition: background-image 0.4s ease-out; }
         .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #000 5%, rgba(0,0,0,0.6) 50%, transparent 100%); }
-        .hero-text { position: absolute; bottom: 20px; right: 50px; left: 50px; z-index: 2; }
-        .hero-title { font-size: 60px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 15px black; }
-        .hero-desc { font-size: 20px; color: #ddd; max-width: 60%; }
+        .hero-text { position: absolute; bottom: 20px; right: 50px; left: 50px; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; }
+        .hero-title { font-size: 60px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 15px black; line-height: 1; }
+        .hero-desc { font-size: 20px; color: #ddd; line-height: 1.3; text-shadow: 1px 1px 5px black; max-width: 60%; max-height: 80px; overflow: hidden; }
 
-        /* Bottom Section Scroll */
         .bottom-section { 
             height: 45%; flex-grow: 1; width: 100%; background: #000; 
-            overflow-y: auto; overflow-x: hidden; padding-bottom: 100px;
+            overflow-y: auto; overflow-x: hidden; padding-top: 10px; padding-bottom: 100px; box-sizing: border-box; z-index: 2; 
+            scroll-behavior: smooth; 
         }
         .bottom-section::-webkit-scrollbar { display: none; }
 
-        .category-block { margin-bottom: 10px; display: block; }
+        .category-block { margin-bottom: 5px; display: block; }
         .category-title { font-size: 18px; margin-right: 60px; font-weight: bold; color: #aaa; }
         
-        /* --- התיקון המוחלט לחיתוך --- */
+        /* --- שכפול ההצלחה של המשך צפייה לכל השורות --- */
         .row { 
             display: flex; gap: 15px; 
-            padding: 40px 60px; /* מרווח קבוע של 60 פיקסלים מכל הצדדים שמגן על הזום */
-            margin-top: -20px; 
+            padding: 40px 60px; /* ריפוד זהה לכולם שמונע חיתוך */
+            margin-top: -30px; 
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
             scroll-snap-type: x mandatory; 
         }
@@ -70,46 +69,48 @@
         
         .card { 
             display: inline-block; position: relative; cursor: pointer; 
-            border-radius: 6px; overflow: hidden; 
-            border: 2px solid transparent; 
-            transition: transform 0.2s, border-color 0.2s; 
-            flex-shrink: 0; z-index: 1;
+            border-radius: 6px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+            border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; 
+            scroll-snap-align: start; flex-shrink: 0; z-index: 1;
         }
+
+        /* מניעת חיתוך אבסולוטית לתמונה הראשונה והאחרונה */
+        .row .card:first-child { transform-origin: right center !important; }
+        .row .card:last-child { transform-origin: left center !important; }
         
         .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card.movie { min-width: 100px; width: 100px; height: 150px; }
         .card img { width: 100%; height: 100%; object-fit: cover; }
         
         .card:focus { 
-            transform: scale(1.2); /* הגדלה קצת יותר משמעותית */
-            z-index: 100; border-color: #fff; 
-            box-shadow: 0 0 15px rgba(0,0,0,1); outline: none; 
+            transform: scale(1.15); z-index: 100; border-color: #fff; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.9); outline: none; 
         }
 
         .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; color: white; }
         .card:focus .card-title-overlay { opacity: 1; }
 
-        #video-container { position: fixed; inset: 0; background: #000; z-index: 99999; display: none; }
+        #video-container { position: fixed; inset: 0; background: #000; z-index: 20000; display: none; }
         .screen { display: none; }
-        #loading-screen, #auth-screen { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; align-items: center; justify-content: center; }
+        #loading-screen, #auth-screen { position: fixed; inset: 0; background: #000; z-index: 30000; display: flex; align-items: center; justify-content: center; }
         #content-view { display: none; padding: 30px; position: absolute; inset: 0; z-index: 20; background: #000; overflow-y: auto; }
-        
-        .search-input { width: 80%; background: #222; border: 2px solid #333; color: white; padding: 15px; font-size: 20px; border-radius: 50px; margin: 20px 60px; outline: none; }
-        .search-input:focus { border-color: var(--red); }
+
+        .search-container { padding: 20px 50px; }
+        .search-input { width: 100%; max-width: 600px; background: #222; border: 2px solid #333; color: white; padding: 15px 20px; font-size: 20px; border-radius: 50px; outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen" style="display: flex;"><h1 style="color:#444">טוען...</h1></div>
+    <div id="loading-screen" style="display: flex;"><h1 style="color: #444; font-size: 24px;">טוען...</h1></div>
 
     <div id="auth-screen" class="screen">
-        <h1 style="color:var(--red); font-size:50px">HOT Play</h1>
-        <button class="login-btn" onclick="login()" style="background:var(--red); color:white; padding:15px 40px; border:none; border-radius:50px; font-size:20px; cursor:pointer;">התחברות עם Google</button>
+        <h1 style="font-size: 60px; color: var(--red);">HOT Play</h1>
+        <button class="login-btn" tabindex="1" onclick="login()" style="background:var(--red); color:white; border:none; padding:15px 40px; border-radius:50px; font-size:20px; cursor:pointer;">התחברות עם Google</button>
     </div>
 
-    <div id="profile-screen" class="screen" style="flex-direction:column; align-items:center; justify-content:center;">
-        <h1 style="font-size:35px; margin-bottom:30px;">מי צופה?</h1>
-        <div id="profile-list" style="display:flex; gap:25px;"></div>
+    <div id="profile-screen" class="screen" style="flex-direction: column; align-items: center; justify-content: center;">
+        <h1 style="font-size: 35px; margin-bottom: 30px;">מי צופה?</h1>
+        <div class="profile-container" id="profile-list" style="display:flex; gap:25px;"></div>
     </div>
 
     <div class="sidebar screen" id="sidebar">
@@ -157,8 +158,8 @@
         function loadProfiles() {
             const list = document.getElementById('profile-list');
             list.innerHTML = profilesData.map(p => `
-                <div class="profile-box" tabindex="0" onclick="selectProfile('${p.n}')" style="text-align:center; cursor:pointer;">
-                    <div style="width:120px; height:120px; border-radius:50%; background-image:url('${p.i}'); background-size:cover; border:4px solid transparent;" class="p-img"></div>
+                <div class="profile-box" tabindex="0" onclick="selectProfile('${p.n}')" style="text-align:center;">
+                    <div style="width:100px; height:100px; border-radius:50%; background-image:url('${p.i}'); background-size:cover; border:3px solid transparent;" class="p-img"></div>
                     <p>${p.n}</p>
                 </div>`).join('');
             setTimeout(() => document.querySelector('.profile-box').focus(), 500);
@@ -183,15 +184,13 @@
             const home = document.getElementById('home-view');
             home.innerHTML = '';
             document.querySelector('.top-section').style.display = 'block';
-            
             const history = JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
             if (history.length > 0) home.innerHTML += renderRow("המשך צפייה", history);
 
             const allowed = currentProfile.type === 'kids' ? ['ילדים'] : ['סדרות', 'סרטים'];
             const filtered = seriesData.filter(s => allowed.includes(s.category));
-            const genres = [...new Set(filtered.map(s => s.genre || s.category))];
-            
-            genres.forEach(g => {
+            const uniqueGenres = [...new Set(filtered.map(s => s.genre || s.category))];
+            uniqueGenres.forEach(g => {
                 const items = filtered.filter(s => (s.genre || s.category) === g);
                 home.innerHTML += renderRow(g, items);
             });
@@ -202,9 +201,8 @@
             const cards = items.map(s => {
                 let cls = (hasSeries || title === "המשך צפייה") ? 'series' : 'movie';
                 return `<div class="card ${cls}" tabindex="0" data-id="${s.id}" onclick="openContent('${s.id}')">
-                            <img src="${s.image}">
-                            <div class="card-title-overlay">${s.title}</div>
-                        </div>`;
+                    <img src="${s.image}"><div class="card-title-overlay">${s.title}</div>
+                </div>`;
             }).join('');
             return `<div class="category-block"><p class="category-title">${title}</p><div class="row">${cards}</div></div>`;
         }
@@ -214,10 +212,9 @@
             if (!item) return;
             lastFocusedId = id;
             const view = document.getElementById('content-view');
-            document.querySelector('.top-section').style.display = 'none';
-            document.querySelector('.bottom-section').style.display = 'none';
+            document.querySelectorAll('.top-section, .bottom-section').forEach(e => e.style.display = 'none');
             view.style.display = 'block';
-
+            
             if (item.type === 'movie') {
                 view.innerHTML = `<div style="height:100vh; display:flex; flex-direction:column; justify-content:center; padding:60px; background:linear-gradient(to right, #000, transparent), url('${item.image}') center/cover;">
                     <h1>${item.title}</h1><p style="max-width:500px">${item.description}</p>
@@ -235,77 +232,59 @@
             currentPlayingId = id;
             const container = document.getElementById('video-container');
             container.style.display = 'block';
-            container.innerHTML = `<iframe id="player" src="https://drive.google.com/file/d/${id}/preview" style="width:100%; height:100%; border:none;" allow="autoplay"></iframe>`;
+            container.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" style="width:100%; height:100%; border:none;"></iframe>`;
             
-            // הוספת פריט להיסטוריה
+            // הוספה להיסטוריה
             const item = seriesData.find(s => s.id === lastFocusedId || (s.episodes && s.episodes.some(e => e.driveId === id)));
             if(item) {
-                let history = JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
-                history = history.filter(h => h.id !== item.id);
-                history.unshift(item);
-                localStorage.setItem(`history_${currentProfile.n}`, JSON.stringify(history.slice(0,10)));
+                let h = JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]");
+                h = h.filter(x => x.id !== item.id); h.unshift(item);
+                localStorage.setItem(`history_${currentProfile.n}`, JSON.stringify(h.slice(0,10)));
             }
         }
 
-        // --- פונקציית היציאה המהירה והמתוקנת ---
+        // --- התיקון הסופי למסך השחור ---
         function closeVideo() {
             const container = document.getElementById('video-container');
             container.innerHTML = ''; 
             container.style.display = 'none';
 
-            // החזרת התצוגה של דף הסדרה
+            // החזרת דף הסדרה מיידית
             document.getElementById('content-view').style.display = 'block';
             
-            // החזרת פוקוס לפרק האחרון
             if (currentPlayingId) {
                 setTimeout(() => {
                     const el = document.querySelector(`[data-id="${currentPlayingId}"]`);
                     if (el) { el.focus(); el.scrollIntoView({block:'center'}); }
-                }, 50);
+                }, 100);
             }
         }
 
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' || e.key === 'Back' || e.keyCode === 27) {
+        window.addEventListener('keydown', e => {
+            if (e.key === 'Escape' || e.keyCode === 27) {
                 if (document.getElementById('video-container').style.display === 'block') {
-                    e.preventDefault();
                     closeVideo();
-                    return;
+                } else if (document.getElementById('content-view').style.display === 'block') {
+                    document.getElementById('content-view').style.display = 'none';
+                    switchScreen('home');
+                    renderHome();
                 }
-                handleBack();
             }
-            
-            // ניווט מהתפריט חזרה לתוכן
-            const active = document.activeElement;
-            if (active.classList.contains('nav-item') && e.key === 'ArrowLeft') {
-                e.preventDefault();
+            // ניווט מהתפריט חזרה
+            if (document.activeElement.classList.contains('nav-item') && e.key === 'ArrowLeft') {
                 const firstCard = document.querySelector('.card');
                 if (firstCard) firstCard.focus();
             }
         });
 
-        function handleBack() {
-            if (document.getElementById('content-view').style.display === 'block') {
-                document.getElementById('content-view').style.display = 'none';
-                switchScreen('home');
-                renderHome();
-                return;
-            }
-            if (document.getElementById('app').style.display === 'flex') { switchScreen('profiles'); }
-        }
-
         function switchScreen(s) {
             document.querySelectorAll('.screen, #content-view, #video-container').forEach(e => e.style.display = 'none');
-            if (s === 'auth') document.getElementById('auth-screen').style.display = 'flex';
             if (s === 'profiles') document.getElementById('profile-screen').style.display = 'flex';
-            if (s === 'home') { 
-                document.getElementById('sidebar').style.display = 'flex'; 
-                document.getElementById('app').style.display = 'flex';
-                document.querySelector('.bottom-section').style.display = 'block';
-            }
+            if (s === 'home') { document.getElementById('sidebar').style.display = 'flex'; document.getElementById('app').style.display = 'flex'; document.querySelector('.bottom-section').style.display = 'block'; }
+            if (s === 'auth') document.getElementById('auth-screen').style.display = 'flex';
         }
 
-        document.addEventListener('focus', (e) => {
+        document.addEventListener('focus', e => {
             if (e.target.classList.contains('card') && document.querySelector('.top-section').style.display !== 'none') {
                 const id = e.target.dataset.id;
                 const item = seriesData.find(x => x.id === id) || seriesData.find(s => s.episodes && s.episodes.some(ep => ep.driveId === id));
