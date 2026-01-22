@@ -71,11 +71,11 @@
         .category-block { margin-bottom: 5px; padding-right: 40px; display: block; }
         .category-title { font-size: 18px; margin-bottom: 0px; font-weight: bold; color: #aaa; }
         
+        /* --- זה התיקון הגדול לשורות --- */
+        /* הגדרה אחידה לכל השורות - מרווח של 50px מכל כיוון */
         .row { 
             display: flex; gap: 15px; 
-            /* ריפוד מינימלי חובה (30px) בצד ימין כדי למנוע חיתוך בזום */
-            /* זה גם נראה טוב יותר בטלוויזיה (Safe Area) */
-            padding: 40px 0 40px 30px; 
+            padding: 40px 50px 40px 50px; /* ריפוד זהה למעלה/למטה/ימין/שמאל */
             margin-top: -20px; 
             margin-bottom: -10px;
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
@@ -95,15 +95,11 @@
             transform-origin: center center;
         }
 
-        /* הפכתי את זה ל- !important כדי שיתפוס על כל השורות בוודאות */
+        /* במקרה שהריפוד לא מספיק - מכריחים את הראשון לגדול שמאלה */
         .row .card:first-child {
-            transform-origin: right center !important; /* גדל שמאלה */
-        }
-        .row .card:last-child {
-            transform-origin: left center !important; /* גדל ימינה */
+            transform-origin: right center !important;
         }
         
-        /* גדלים */
         .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card.movie { min-width: 100px; width: 100px; height: 150px; }
         
@@ -603,21 +599,27 @@
             }, 500);
         }
 
-        // --- תיקון סופי למסך השחור ---
+        // --- התיקון הקריטי למסך שחור ---
         function closeVideo() {
-            // 1. קודם כל נדאג שהדף הראשי מוצג
-            document.getElementById('content-view').style.display = 'block';
-            document.querySelector('.top-section').style.display = 'none';
-            document.querySelector('.bottom-section').style.display = 'none';
-
-            // 2. עכשיו נעיף את הוידאו
             const vidContainer = document.getElementById('video-container');
-            vidContainer.innerHTML = '';
-            vidContainer.style.display = 'none';
+            
+            // 1. קודם כל נמחוק את התוכן כדי שהדפדפן יבין שאין שם כלום
+            vidContainer.innerHTML = ""; 
+            
+            // 2. נסתיר את הקונטיינר
+            vidContainer.style.display = "none";
+
+            // 3. נציג את מסך התוכן מיידית
+            const contentView = document.getElementById('content-view');
+            contentView.style.display = "block";
+            
+            // נסתיר שאר אלמנטים ליתר ביטחון
+            document.querySelector('.top-section').style.display = "none";
+            document.querySelector('.bottom-section').style.display = "none";
 
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
 
-            // 3. החזרת פוקוס לכרטיסייה האחרונה
+            // 4. נחזיר את הפוקוס
             if (currentPlayingId) {
                 setTimeout(() => {
                     const el = document.querySelector(`[data-id="${currentPlayingId}"]`);
@@ -649,10 +651,12 @@
         }
         
         function handleBackPress() {
+            // אם וידאו פתוח (גם אם ריק/שחור) - סגור אותו
             if(document.getElementById('video-container').style.display === 'block') { 
                 closeVideo(); 
                 return; 
             }
+            // אם אנחנו בדף סדרה - חזור לבית
             if (document.getElementById('content-view').style.display !== 'none') {
                 document.getElementById('content-view').style.display = 'none';
                 switchScreen('home');
