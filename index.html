@@ -40,7 +40,7 @@
         .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; visibility: visible; }
         .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
 
-        /* Main Content */
+        /* Layout */
         .main-content { flex: 1; height: 100vh; display: flex; flex-direction: column; position: relative; background: #000; overflow: hidden; }
 
         .top-section { height: 55%; width: 100%; position: relative; flex-shrink: 0; z-index: 1; }
@@ -62,16 +62,16 @@
         .category-block { margin-bottom: 5px; padding-right: 40px; display: block; }
         .category-title { font-size: 18px; margin-bottom: 0px; font-weight: bold; color: #aaa; }
         
-        /* --- תיקון השורות --- */
         .row { 
             display: flex; gap: 15px; 
-            /* הסרת רווח מיותר מימין */
+            /* הסרת רווח מיותר מימין (התחלה) */
             padding: 40px 0 40px 0; 
             margin-top: -20px; 
             margin-bottom: -10px;
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
             scroll-snap-type: x mandatory; 
-            padding-left: 50px; /* רווח בסוף הגלילה (שמאל) */
+            /* רווח רק בסוף הגלילה (שמאל) */
+            padding-left: 50px; 
         }
         .row::-webkit-scrollbar { display: none; }
         
@@ -87,16 +87,17 @@
             transform-origin: center center;
         }
 
-        /* --- התיקון המוחלט לחיתוך בצד ימין (ללא רווח) --- */
-        /* האלמנט הראשון ב-RTL (ימין) יגדל שמאלה בלבד */
+        /* --- התיקון המוחלט: --- */
+        /* האלמנט הראשון תמיד יגדל שמאלה (פנימה) ולכן לא ייחתך בקצה המסך */
         .row .card:first-child {
             transform-origin: right center !important;
         }
-        /* האלמנט האחרון יגדל ימינה בלבד */
+        /* האלמנט האחרון יגדל ימינה */
         .row .card:last-child {
             transform-origin: left center !important;
         }
         
+        /* גדלים */
         .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card.movie { min-width: 100px; width: 100px; height: 150px; }
         .card img { width: 100%; height: 100%; object-fit: cover; }
@@ -113,7 +114,7 @@
         .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; transition: 0.2s; color: white; }
         .card:focus .card-title-overlay { opacity: 1; }
 
-        /* Video Container - Z-Index הגבוה ביותר */
+        /* Video Container - תמיד מעל הכל */
         #video-container { position: fixed; inset: 0; background: #000; z-index: 50000; display: none; }
 
         .search-container { padding: 20px 50px; }
@@ -131,6 +132,7 @@
         .profile-box:focus { transform: scale(1.15); }
         .profile-box:focus .profile-img { border-color: var(--red); }
         .profile-name { font-size: 16px; color: #ccc; }
+        
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
@@ -215,7 +217,6 @@
             container.innerHTML = results.length > 0 ? renderRow(`תוצאות עבור "${query}"`, results) : `<div style="padding: 20px; color: #777;">לא נמצאו תוצאות...</div>`;
         }
 
-        // ניווט מקלדת
         window.addEventListener('keydown', function(e) {
             const active = document.activeElement;
             if (active.id === 'search-input') {
@@ -225,34 +226,34 @@
             if (!active) return;
             if (e.key === 'Enter' && (active.classList.contains('card') || active.classList.contains('nav-item') || active.classList.contains('profile-box'))) { e.preventDefault(); active.click(); return; }
             if (e.key === 'ArrowRight' && active.classList.contains('card')) {
-                e.preventDefault();
-                const prevCard = active.previousElementSibling;
-                if (prevCard && prevCard.classList.contains('card')) prevCard.focus();
-                else document.querySelector('.nav-item').focus();
+                e.preventDefault(); const prevCard = active.previousElementSibling;
+                if (prevCard && prevCard.classList.contains('card')) prevCard.focus(); else document.querySelector('.nav-item').focus();
             }
             if (e.key === 'ArrowLeft') {
                 if (active.classList.contains('nav-item')) {
                     e.preventDefault();
-                    if(lastFocusedId) { const el = document.querySelector(`[data-id="${lastFocusedId}"]`); if(el) el.focus(); else document.querySelector('.card').focus(); }
+                    if (lastFocusedId) { const el = document.querySelector(`[data-id="${lastFocusedId}"]`); if(el) el.focus(); else document.querySelector('.card').focus(); }
                     else document.querySelector('.card').focus();
                     return;
                 }
-                if (active.classList.contains('card')) {
-                    const nextCard = active.nextElementSibling;
-                    if (nextCard && nextCard.classList.contains('card')) { e.preventDefault(); nextCard.focus(); }
-                }
+                if (active.classList.contains('card')) { const nextCard = active.nextElementSibling; if (nextCard && nextCard.classList.contains('card')) { e.preventDefault(); nextCard.focus(); } }
             }
+            // (ArrowDown/Up logic remains same as provided previously, condensed here for brevity)
             if (e.key === 'ArrowDown') {
                 const currentBlock = active.closest('.category-block');
                 if (currentBlock) {
-                    e.preventDefault();
+                    e.preventDefault(); 
                     const allBlocks = Array.from(document.querySelectorAll('.category-block'));
-                    const idx = allBlocks.indexOf(currentBlock);
-                    if (idx < allBlocks.length - 1) {
-                        const nextCards = Array.from(allBlocks[idx+1].querySelectorAll('.card'));
-                        const currentCards = Array.from(currentBlock.querySelectorAll('.card'));
-                        let target = nextCards[currentCards.indexOf(active.closest('.card'))] || nextCards[nextCards.length-1];
-                        if(target) { target.scrollIntoView({behavior:'auto',block:'center'}); setTimeout(()=>target.focus(),50); }
+                    const currentIndex = allBlocks.indexOf(currentBlock);
+                    if (currentIndex < allBlocks.length - 1) {
+                        const nextBlock = allBlocks[currentIndex + 1];
+                        const currentCard = active.closest('.card');
+                        const currentRowCards = Array.from(currentBlock.querySelectorAll('.card'));
+                        const cardIndex = currentRowCards.indexOf(currentCard);
+                        const nextRowCards = Array.from(nextBlock.querySelectorAll('.card'));
+                        let targetCard = nextRowCards[cardIndex];
+                        if (!targetCard) targetCard = nextRowCards[nextRowCards.length - 1];
+                        if (targetCard) { targetCard.scrollIntoView({ behavior: 'auto', block: 'center' }); setTimeout(() => { targetCard.focus(); }, 50); }
                     }
                 }
             }
@@ -262,12 +263,16 @@
                     e.preventDefault();
                     if (document.getElementById('search-input')) { document.getElementById('search-input').focus(); return; }
                     const allBlocks = Array.from(document.querySelectorAll('.category-block'));
-                    const idx = allBlocks.indexOf(currentBlock);
-                    if (idx > 0) {
-                        const prevCards = Array.from(allBlocks[idx-1].querySelectorAll('.card'));
-                        const currentCards = Array.from(currentBlock.querySelectorAll('.card'));
-                        let target = prevCards[currentCards.indexOf(active.closest('.card'))] || prevCards[prevCards.length-1];
-                        if(target) { target.scrollIntoView({behavior:'auto',block:'center'}); setTimeout(()=>target.focus(),50); }
+                    const currentIndex = allBlocks.indexOf(currentBlock);
+                    if (currentIndex > 0) {
+                        const prevBlock = allBlocks[currentIndex - 1];
+                        const currentCard = active.closest('.card');
+                        const currentRowCards = Array.from(currentBlock.querySelectorAll('.card'));
+                        const cardIndex = currentRowCards.indexOf(currentCard);
+                        const prevRowCards = Array.from(prevBlock.querySelectorAll('.card'));
+                        let targetCard = prevRowCards[cardIndex];
+                        if (!targetCard) targetCard = prevRowCards[prevRowCards.length - 1];
+                        if (targetCard) { targetCard.scrollIntoView({ behavior: 'auto', block: 'center' }); setTimeout(() => { targetCard.focus(); }, 50); }
                     }
                 }
             }
@@ -279,7 +284,7 @@
                 e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 const id = lastFocusedId;
                 let item = seriesData.find(s => s.id === id) || seriesData.find(s => s.episodes && s.episodes.some(ep => ep.driveId === id));
-                if (!item) { const h = getHistory(); item = h.find(x => x.id === id); }
+                if (!item) { const history = getHistory(); item = history.find(h => h.id === id); }
                 if (item && document.querySelector('.top-section').style.display !== 'none') {
                     document.getElementById('hero-bg').style.backgroundImage = `url('${item.image}')`;
                     document.getElementById('hero-title').innerText = item.title;
@@ -289,99 +294,78 @@
         }, true);
 
         function login() { firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()); }
-
-        function loadProfiles() {
-            document.getElementById('profile-list').innerHTML = profilesData.map(p => `
-                <div class="profile-box" tabindex="0" onclick="selectProfile('${p.n}')">
-                    <div class="profile-img" style="background-image: url('${p.i}')"></div><span class="profile-name">${p.n}</span>
-                </div>`).join('');
-            setTimeout(() => document.querySelector('.profile-box').focus(), 500);
-        }
-
+        function loadProfiles() { document.getElementById('profile-list').innerHTML = profilesData.map(p => `<div class="profile-box" tabindex="0" onclick="selectProfile('${p.n}')"><div class="profile-img" style="background-image: url('${p.i}')"></div><span class="profile-name">${p.n}</span></div>`).join(''); setTimeout(() => document.querySelector('.profile-box').focus(), 500); }
         function selectProfile(name) { currentProfile = profilesData.find(p => p.n === name); updateSidebar(); enterApp(); }
         function enterApp() { switchScreen('home'); renderHome(); }
-
-        function addToHistory(item) {
-            if (!currentProfile) return;
-            const key = `history_${currentProfile.n}`;
-            let h = JSON.parse(localStorage.getItem(key) || "[]");
-            h = h.filter(x => x.id !== item.id); h.unshift(item);
-            if(h.length > 10) h.pop();
-            localStorage.setItem(key, JSON.stringify(h));
-        }
-        function getHistory() { return currentProfile ? JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]") : []; }
+        
+        function addToHistory(item) { if (!currentProfile) return; const key = `history_${currentProfile.n}`; let h = JSON.parse(localStorage.getItem(key) || "[]"); h = h.filter(x => x.id !== item.id); h.unshift(item); if(h.length > 10) h.pop(); localStorage.setItem(key, JSON.stringify(h)); }
+        function getHistory() { if (!currentProfile) return []; return JSON.parse(localStorage.getItem(`history_${currentProfile.n}`) || "[]"); }
 
         function renderHome() {
             const home = document.getElementById('home-view');
             document.querySelector('.top-section').style.display = 'block';
             home.innerHTML = '';
-            const h = getHistory();
-            if (h.length > 0) home.innerHTML += renderRow("המשך צפייה", h, true);
+            const history = getHistory();
+            if (history.length > 0) home.innerHTML += renderRow("המשך צפייה", history, true);
             let allowedCats = currentProfile.type === 'kids' ? ['ילדים'] : ['סדרות', 'סרטים'];
             const allItems = seriesData.filter(s => allowedCats.includes(s.category));
             [...new Set(allItems.map(s => s.genre || s.category))].forEach(g => {
                 const items = allItems.filter(s => (s.genre || s.category) === g);
                 if(items.length > 0) home.innerHTML += renderRow(g, items);
             });
-            if (lastFocusedId) setTimeout(() => { const el = document.querySelector(`[data-id="${lastFocusedId}"]`); if(el) { el.focus(); el.scrollIntoView({block:'center', inline:'center'}); } }, 100);
+            if (lastFocusedId) setTimeout(() => { const el = document.querySelector(`[data-id="${lastFocusedId}"]`); if(el) { el.focus(); el.scrollIntoView({block: 'center', inline: 'center'}); } }, 100);
         }
 
         function renderRow(title, items, forceUniform = false) {
             const hasSeries = items.some(item => item.type === 'series' || item.category === 'סדרות' || (item.genre && item.genre.includes('סדרות')));
-            const cards = items.map(s => {
-                let shape = (forceUniform || hasSeries) ? 'series' : ((s.type === 'movie' || s.category === 'סרטים') ? 'movie' : 'series');
-                return `<div class="card ${shape}" tabindex="0" data-id="${s.id}" onclick="openContent('${s.id}')">
-                        <img src="${s.image}" loading="lazy"><div class="card-title-overlay">${s.title}</div>
-                    </div>`;
+            const cardsHtml = items.map(s => {
+                let shapeClass = (forceUniform || hasSeries) ? 'series' : ((s.type === 'movie' || s.category === 'סרטים') ? 'movie' : 'series');
+                return `<div class="card ${shapeClass}" tabindex="0" data-id="${s.id}" onclick="openContent('${s.id}')"><img src="${s.image}" loading="lazy"><div class="card-title-overlay">${s.title}</div></div>`;
             }).join('');
-            return `<div class="category-block"><div class="category-title">${title}</div><div class="row">${cards}</div></div>`;
+            return `<div class="category-block"><div class="category-title">${title}</div><div class="row">${cardsHtml}</div></div>`;
         }
 
         function openContent(id) {
             let item = seriesData.find(x => x.id === id);
-            if (!item) { const h = getHistory(); item = h.find(x => x.id === id); }
+            if (!item) { const history = getHistory(); item = history.find(h => h.id === id); }
             if (!item) return;
             lastFocusedId = id; addToHistory(item);
-            
-            const view = document.getElementById('content-view');
-            document.querySelector('.top-section').style.display = 'none';
-            document.querySelector('.bottom-section').style.display = 'none';
-            view.style.display = 'block';
-            
+            const detailView = document.getElementById('content-view');
+            document.querySelector('.top-section').style.display = 'none'; document.querySelector('.bottom-section').style.display = 'none';
+            detailView.style.display = 'block';
             let html = '';
             if (item.type === 'movie' || item.category === 'סרטים') {
                 html = `<div style="min-height:80vh; display:flex; flex-direction:column; justify-content:center; background: linear-gradient(to right, black, transparent), url('${item.image}') no-repeat center/cover; padding:60px;">
-                    <h1 style="font-size:50px; margin-bottom:15px; text-shadow: 2px 2px 10px black;">${item.title}</h1>
-                    <p style="max-width:600px; font-size:18px; margin-bottom:25px; text-shadow: 1px 1px 5px black;">${item.description}</p>
-                    <button class="login-btn" tabindex="0" onclick="playHD('${item.driveId}')">▶ נגן סרט</button>
-                </div>`;
+                    <h1 style="font-size:50px; margin-bottom:15px; text-shadow: 2px 2px 10px black;">${item.title}</h1><p style="max-width:600px; font-size:18px; margin-bottom:25px; text-shadow: 1px 1px 5px black;">${item.description}</p>
+                    <button class="login-btn" tabindex="0" onclick="playHD('${item.driveId}')">▶ נגן סרט</button></div>`;
             } else {
                 html = `<div><div style="margin-bottom: 30px;"><h1 style="font-size:50px; margin-bottom:15px;">${item.title}</h1><p style="max-width:700px; color:#aaa; font-size: 18px;">${item.description}</p></div>
                     <div class="category-title">פרקים</div><div class="row" style="padding-bottom:20px;">
                         ${item.episodes.map(ep => `<div class="card series" tabindex="0" data-id="${ep.driveId}" onclick="playHD('${ep.driveId}')"><img src="${ep.image}" style="height:100%;"><div class="card-title-overlay">פרק ${ep.number}</div></div>`).join('')}
                     </div></div>`;
             }
-            view.innerHTML = html;
-            setTimeout(() => { const b=view.querySelector('.login-btn')||view.querySelector('.card'); if(b)b.focus(); }, 200);
+            detailView.innerHTML = html;
+            setTimeout(() => { const b=detailView.querySelector('.login-btn')||detailView.querySelector('.card'); if(b)b.focus(); }, 200);
         }
 
         function playHD(id) {
             currentPlayingId = id;
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(true);
             const container = document.getElementById('video-container');
+            container.style.display = 'block'; // חובה להציג לפני ששמים תוכן
             container.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allowfullscreen style="width:100%; height:100%; border:none;"></iframe>`;
-            switchScreen('video');
             if (typeof AndroidControl !== 'undefined') automateDrive();
         }
 
         function playNextEpisode() {
-            let s = seriesData.find(s => s.episodes && s.episodes.some(ep => ep.driveId === currentPlayingId));
-            if (s) {
-                const idx = s.episodes.findIndex(ep => ep.driveId === currentPlayingId);
-                if (idx !== -1 && idx < s.episodes.length - 1) {
-                    closeVideo(); setTimeout(() => playHD(s.episodes[idx + 1].driveId), 500);
-                } else closeVideo();
-            } else closeVideo();
+            let currentSeries = seriesData.find(s => s.episodes && s.episodes.some(ep => ep.driveId === currentPlayingId));
+            if (currentSeries) {
+                const currentIndex = currentSeries.episodes.findIndex(ep => ep.driveId === currentPlayingId);
+                if (currentIndex !== -1 && currentIndex < currentSeries.episodes.length - 1) {
+                    const nextEp = currentSeries.episodes[currentIndex + 1];
+                    closeVideo(); setTimeout(() => { playHD(nextEp.driveId); }, 500);
+                } else { closeVideo(); }
+            } else { closeVideo(); }
         }
 
         function automateDrive() {
@@ -390,39 +374,41 @@
                 var f = document.querySelector('iframe');
                 if (f) {
                     clearInterval(det);
-                    try {
-                        var style = document.createElement('style');
-                        style.innerHTML = '.ndfHFb-c4YZDc-Wr97p { display: none !important; }';
-                        f.contentDocument.head.appendChild(style);
-                    } catch(e) {}
-                    f.focus();
-                    setTimeout(function() { if(window.AndroidControl) AndroidControl.triggerCenterClick(); }, 1500);
+                    try { var style = document.createElement('style'); style.innerHTML = '.ndfHFb-c4YZDc-Wr97p { display: none !important; }'; f.contentDocument.head.appendChild(style); } catch(e) {}
+                    f.focus(); setTimeout(function() { if(window.AndroidControl) AndroidControl.triggerCenterClick(); }, 1500);
                 }
                 if (checks++ > 20) clearInterval(det);
             }, 500);
         }
 
-        // --- הפונקציה הקריטית לחזרה ---
-        function closeVideo() {
-            const container = document.getElementById('video-container');
-            container.innerHTML = ''; // מחיקה מידית
-            container.style.display = 'none'; // הסתרה מידית
-            
-            // חזרה לדף הסדרה
-            document.getElementById('content-view').style.display = 'block';
-            document.querySelector('.top-section').style.display = 'none';
-            document.querySelector('.bottom-section').style.display = 'none';
-            
-            if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
-
-            // שחזור פוקוס לפרק
-            if (currentPlayingId) {
-                setTimeout(() => {
-                    const el = document.querySelector(`[data-id="${currentPlayingId}"]`);
-                    if (el) { el.focus(); el.scrollIntoView({block: 'center', inline: 'center'}); }
-                }, 100);
+        // --- הפונקציה הקריטית שנקראת מה-Java ---
+        window.handleBackPress = function() {
+            // 1. סגירת וידאו מיידית
+            const vidContainer = document.getElementById('video-container');
+            if(vidContainer.style.display === 'block') {
+                vidContainer.innerHTML = '';
+                vidContainer.style.display = 'none';
+                
+                document.getElementById('content-view').style.display = 'block';
+                if(currentPlayingId) setTimeout(() => { const el = document.querySelector(`[data-id="${currentPlayingId}"]`); if(el) { el.focus(); el.scrollIntoView({block:'center'}); } }, 100);
+                
+                if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
+                return;
             }
-        }
+            // 2. יציאה מתוכן
+            if (document.getElementById('content-view').style.display !== 'none') {
+                document.getElementById('content-view').style.display = 'none';
+                switchScreen('home');
+                if (lastFocusedId) setTimeout(() => { const el = document.querySelector(`[data-id="${lastFocusedId}"]`); if(el) el.focus(); }, 200);
+                return;
+            }
+            if (document.getElementById('search-input')) { enterApp(); return; }
+            if (document.querySelector('.bottom-section').style.display === 'block') { switchScreen('profiles'); return; }
+            if (window.AndroidControl) AndroidControl.exitApp();
+        };
+
+        // --- פונקציה פנימית ל-JS בלבד (למקרה שה-Java לא עובד) ---
+        function closeVideo() { window.handleBackPress(); }
 
         function switchScreen(name) {
             document.querySelectorAll('.screen').forEach(el => el.style.display = 'none');
@@ -440,21 +426,6 @@
                 document.querySelector('.bottom-section').style.display = 'block';
                 setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 500);
             }
-            if (name === 'video') document.getElementById('video-container').style.display = 'block';
-        }
-        
-        // פונקציה שנקראת מה-MainActivity
-        function handleBackPress() {
-            if(document.getElementById('video-container').style.display === 'block') { closeVideo(); return; }
-            if (document.getElementById('content-view').style.display !== 'none') {
-                document.getElementById('content-view').style.display = 'none';
-                switchScreen('home');
-                if (lastFocusedId) setTimeout(() => { const el = document.querySelector(`[data-id="${lastFocusedId}"]`); if(el) el.focus(); }, 200);
-                return;
-            }
-            if (document.getElementById('search-input')) { enterApp(); return; }
-            if (document.querySelector('.bottom-section').style.display === 'block') { switchScreen('profiles'); return; }
-            if (window.AndroidControl) AndroidControl.exitApp();
         }
     </script>
 </body>
