@@ -71,15 +71,17 @@
         .category-block { margin-bottom: 5px; padding-right: 40px; display: block; }
         .category-title { font-size: 18px; margin-bottom: 0px; font-weight: bold; color: #aaa; }
         
-        /* --- זה התיקון הגדול לשורות --- */
-        /* הגדרה אחידה לכל השורות - מרווח של 50px מכל כיוון */
         .row { 
             display: flex; gap: 15px; 
-            padding: 40px 50px 40px 50px; /* ריפוד זהה למעלה/למטה/ימין/שמאל */
+            /* הסרתי לחלוטין את הריפוד בצדדים - התמונה תתחיל בול בהתחלה */
+            padding: 40px 0 40px 0; 
             margin-top: -20px; 
             margin-bottom: -10px;
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
             scroll-snap-type: x mandatory; 
+            /* וידוא שאין ריפוד נסתר */
+            padding-right: 0 !important;
+            padding-left: 50px; /* רק בסוף שיהיה מקום */
         }
         .row::-webkit-scrollbar { display: none; }
         
@@ -91,15 +93,21 @@
             transition: transform 0.2s, border-color 0.2s; 
             scroll-snap-align: start; flex-shrink: 0; 
             z-index: 1;
-            /* ברירת מחדל: גדל מהמרכז */
+            /* ברירת מחדל */
             transform-origin: center center;
         }
 
-        /* במקרה שהריפוד לא מספיק - מכריחים את הראשון לגדול שמאלה */
-        .row .card:first-child {
+        /* --- הפתרון המדעי לבעיית החיתוך --- */
+        /* האלמנט הראשון ב-RTL (צד ימין) יגדל שמאלה בלבד */
+        .row .card:first-of-type {
             transform-origin: right center !important;
         }
+        /* האלמנט האחרון יגדל ימינה בלבד */
+        .row .card:last-of-type {
+            transform-origin: left center !important;
+        }
         
+        /* גדלים */
         .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card.movie { min-width: 100px; width: 100px; height: 150px; }
         
@@ -563,6 +571,12 @@
                 AndroidControl.setVideoMode(true);
                 automateDrive();
             }
+            // --- תיקון: זיהוי אוטומטי של יציאה ממסך מלא ---
+            document.onfullscreenchange = function() {
+                if (!document.fullscreenElement) {
+                    closeVideo(); // אם יצאת ממסך מלא -> חזור לאפליקציה
+                }
+            };
         }
 
         function playNextEpisode() {
@@ -599,33 +613,26 @@
             }, 500);
         }
 
-        // --- התיקון הקריטי למסך שחור ---
+        // --- פונקציית היציאה המתוקנת והסופית ---
         function closeVideo() {
-            const vidContainer = document.getElementById('video-container');
+            const container = document.getElementById('video-container');
+            container.innerHTML = ''; // מחיקת הנגן מיד
+            container.style.display = 'none';
             
-            // 1. קודם כל נמחוק את התוכן כדי שהדפדפן יבין שאין שם כלום
-            vidContainer.innerHTML = ""; 
+            // חזרה מיידית לפרטי הסדרה
+            document.getElementById('content-view').style.display = 'block';
+            document.querySelector('.top-section').style.display = 'none'; 
+            document.querySelector('.bottom-section').style.display = 'none';
             
-            // 2. נסתיר את הקונטיינר
-            vidContainer.style.display = "none";
-
-            // 3. נציג את מסך התוכן מיידית
-            const contentView = document.getElementById('content-view');
-            contentView.style.display = "block";
-            
-            // נסתיר שאר אלמנטים ליתר ביטחון
-            document.querySelector('.top-section').style.display = "none";
-            document.querySelector('.bottom-section').style.display = "none";
-
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
 
-            // 4. נחזיר את הפוקוס
+            // שחזור פוקוס לפרק האחרון
             if (currentPlayingId) {
                 setTimeout(() => {
-                    const el = document.querySelector(`[data-id="${currentPlayingId}"]`);
-                    if (el) {
-                        el.focus();
-                        el.scrollIntoView({block: 'center', inline: 'center'});
+                    const lastPlayedElement = document.querySelector(`[data-id="${currentPlayingId}"]`);
+                    if (lastPlayedElement) {
+                        lastPlayedElement.focus();
+                        lastPlayedElement.scrollIntoView({block: 'center', inline: 'center'});
                     }
                 }, 100);
             }
@@ -651,7 +658,7 @@
         }
         
         function handleBackPress() {
-            // אם וידאו פתוח (גם אם ריק/שחור) - סגור אותו
+            // אם וידאו פתוח (גם אם שחור/ריק) - סגור אותו בכוח
             if(document.getElementById('video-container').style.display === 'block') { 
                 closeVideo(); 
                 return; 
