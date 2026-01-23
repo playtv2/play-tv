@@ -183,6 +183,23 @@ const seriesData = [
         ]
     },
 
+
+        {
+        id: "dragon-bullz",
+        type: "series", 
+        category: "ילדים", 
+        genre: "אקשן והרפתקאות", 
+        title: "דרגון בול Z",
+        description: "חבורת חברים לוחמים, בהנהגתו של הגיבור גוקו, מתאחדת להצלת כדור הארץ מפני כוחות הרשע, המאיימים להשתלט עליו. לרשותם עומדים כוחותיהם הטבעיים והעל טבעיים וכוחותיהם של ידידים מעולמות אחרים.",
+        // 👇 וודא שיש קובץ בשם sonic.jpg
+        image: "./images/dragonbullz.jpg",
+        episodes: [
+            { number: "1", desc: "פרק ראשון", image: "", driveId: "" },
+            { number: "2", desc: "פרק שני", image: "", driveId: "" },
+            { number: "3", desc: "פרק שלישי", image: "", driveId: "" }
+        ]
+    },
+
     // ----------- סרטי ילדים -----------------
     {
         id: "zootopia2",
