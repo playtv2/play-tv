@@ -84,7 +84,6 @@
             transform-origin: center center;
         }
 
-        /* שומר על העיצוב המקורי שלך */
         .row .card:first-child { transform-origin: right center !important; }
         .row .card:last-child { transform-origin: left center !important; }
         
@@ -375,14 +374,20 @@
         }
 
         function automateDrive() {
-            // אוטומציה בסיסית של HTML (למקרה שה-Kotlin לא מזריק)
             var checks = 0;
             var det = setInterval(function() {
                 var f = document.querySelector('iframe');
                 if (f) {
                     clearInterval(det);
                     try { var style = document.createElement('style'); style.innerHTML = '.ndfHFb-c4YZDc-Wr97p { display: none !important; }'; f.contentDocument.head.appendChild(style); } catch(e) {}
-                    f.focus(); setTimeout(function() { if(window.AndroidControl) AndroidControl.triggerCenterClick(); }, 1500);
+                    f.focus(); 
+                    
+                    // מנגנון לחיצות שמותאם לסטרימר
+                    if(window.AndroidControl) {
+                        setTimeout(function() { AndroidControl.triggerCenterClick(); }, 500); 
+                        setTimeout(function() { AndroidControl.triggerCenterClick(); }, 1500);
+                        setTimeout(function() { AndroidControl.triggerCenterDoubleClick(); }, 2500);
+                    }
                 }
                 if (checks++ > 20) clearInterval(det);
             }, 500);
