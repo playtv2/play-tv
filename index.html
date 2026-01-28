@@ -91,7 +91,7 @@
         
         .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card.movie { min-width: 100px; width: 100px; height: 150px; }
-        .card img { width: 100%; height: 100%; object-fit: cover; }
+        .card img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
         
         .card:focus { transform: scale(1.15); z-index: 100; border-width: 2px; border-color: #ffffff; box-shadow: 0 10px 20px rgba(0,0,0,0.9); outline: none; }
         .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; transition: 0.2s; color: white; }
@@ -99,16 +99,15 @@
 
         #video-container { position: fixed; inset: 0; background: #000; z-index: 50000; display: none; }
         
-        /* --- זה החלק היחיד שהוספתי לעיצוב המקורי שלך (Loading) --- */
+        /* --- Loading (שקוף ללחיצות) --- */
         #loader-overlay {
             position: fixed; inset: 0; background: #000; z-index: 50001; 
             display: none; align-items: center; justify-content: center;
-            pointer-events: none; /* חובה כדי שהלחיצות יעברו לנגן */
+            pointer-events: none; 
         }
         #loader-overlay video {
             width: 300px; height: 300px; object-fit: contain;
         }
-        /* -------------------------------------------------------- */
 
         .search-container { padding: 20px 50px; }
         .search-input { width: 100%; max-width: 600px; background: #222; border: 2px solid #333; color: white; padding: 15px 20px; font-size: 20px; border-radius: 50px; outline: none; transition: 0.3s; margin-bottom: 30px; }
@@ -126,7 +125,7 @@
         .profile-box:focus .profile-img { border-color: var(--red); }
         .profile-name { font-size: 16px; color: #ccc; }
         
-        /* הוספתי קיבוע למניעת תזוזה */
+        /* קיבוע וידאו שלא יזוז */
         iframe { width: 100%; height: 100%; border: none; overflow: hidden; }
     </style>
 </head>
@@ -222,7 +221,6 @@
                 return; 
             }
             if (!active) return;
-            // הוספת login-btn לרשימת הכפתורים שעובדים עם ENTER
             if (e.key === 'Enter' && (active.classList.contains('card') || active.classList.contains('nav-item') || active.classList.contains('profile-box') || active.classList.contains('login-btn'))) { e.preventDefault(); active.click(); return; }
             if (e.key === 'ArrowRight' && active.classList.contains('card')) {
                 e.preventDefault(); const prevCard = active.previousElementSibling;
@@ -311,8 +309,26 @@
                 const items = allItems.filter(s => (s.genre || s.category) === g);
                 if(items.length > 0) home.innerHTML += renderRow(g, items);
             });
-            // חזרנו לשורה המקורית שעבדה לך מצוין (בלי התחכמויות)
-            if (lastFocusedId) setTimeout(() => { const el = document.querySelector(`[data-id="${lastFocusedId}"]`); if(el) { el.focus(); el.scrollIntoView({block: 'center', inline: 'center'}); } }, 100);
+            
+            // >>>>>>>>> זה התיקון האמיתי לבעיית הפוקוס <<<<<<<<<<<
+            // כאן אנחנו בודקים: יש לנו מיקום אחרון? מצוין, בוא נחזור אליו.
+            // אין לנו? רק אז נלך להתחלה.
+            if (lastFocusedId) {
+                setTimeout(() => { 
+                    const el = document.querySelector(`[data-id="${lastFocusedId}"]`); 
+                    if(el) { 
+                        el.focus(); 
+                        el.scrollIntoView({block: 'center', inline: 'center'}); 
+                    } else {
+                        // אם הכרטיס לא נמצא (נדיר), נלך לראשון כגיבוי
+                        const first = document.querySelector('.card');
+                        if(first) first.focus();
+                    }
+                }, 200);
+            } else {
+                setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 200);
+            }
+            // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         }
 
         function renderRow(title, items, forceUniform = false) {
@@ -328,7 +344,10 @@
             let item = seriesData.find(x => x.id === id);
             if (!item) { const history = getHistory(); item = history.find(h => h.id === id); }
             if (!item) return;
-            lastFocusedId = id; addToHistory(item);
+            
+            lastFocusedId = id; // שומרים את ה-ID *לפני* המעבר
+            
+            addToHistory(item);
             const detailView = document.getElementById('content-view');
             document.querySelector('.top-section').style.display = 'none'; document.querySelector('.bottom-section').style.display = 'none';
             detailView.style.display = 'block';
@@ -347,7 +366,6 @@
             setTimeout(() => { const b=detailView.querySelector('.login-btn')||detailView.querySelector('.card'); if(b)b.focus(); }, 200);
         }
 
-        // --- כאן הוספתי את ה-Loading ל-10 שניות ואת הקיבוע ---
         function playHD(id) {
             currentPlayingId = id;
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(true);
@@ -362,7 +380,6 @@
             // קיבוע iframe
             container.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allowfullscreen style="width:100%; height:100%; border:none; overflow:hidden;" scrolling="no"></iframe>`;
             
-            // הפעלת האוטומציה
             if (typeof AndroidControl !== 'undefined') automateDrive();
         }
 
@@ -376,31 +393,23 @@
             } else closeVideo();
         }
 
-        // --- האוטומציה המותאמת לסטרימר (השהייה של 4 שניות) ---
+        // --- האוטומציה המותאמת (4 שניות דיליי) ---
         function automateDrive() {
             if(window.AndroidControl) {
                 setTimeout(function() { 
                     AndroidControl.triggerCenterClick(); 
-                    
-                    setTimeout(function() {
-                        AndroidControl.triggerCenterClick();
-                    }, 2000);
-                    
-                    setTimeout(function() {
-                        AndroidControl.triggerCenterDoubleClick();
-                    }, 3000);
-                    
+                    setTimeout(function() { AndroidControl.triggerCenterClick(); }, 2000);
+                    setTimeout(function() { AndroidControl.triggerCenterDoubleClick(); }, 3000);
                 }, 4000); 
             }
         }
 
-        // --- החזרת הטיפול ביציאה למקור שעבד ---
         window.handleBackPress = function() {
             if(document.getElementById('video-container').style.display === 'block') {
                 document.getElementById('video-container').innerHTML = '';
                 document.getElementById('video-container').style.display = 'none';
-                document.getElementById('loader-overlay').style.display = 'none';
                 
+                document.getElementById('loader-overlay').style.display = 'none';
                 window.hpDone = false; 
                 
                 document.getElementById('content-view').style.display = 'block';
@@ -412,8 +421,6 @@
             if (document.getElementById('content-view').style.display !== 'none') {
                 document.getElementById('content-view').style.display = 'none';
                 switchScreen('home');
-                // השורה המקורית לטיפול בפוקוס
-                if (lastFocusedId) setTimeout(() => { const el = document.querySelector(`[data-id="${lastFocusedId}"]`); if(el) el.focus(); }, 200);
                 return;
             }
             if (document.getElementById('search-input')) { enterApp(); return; }
@@ -437,7 +444,9 @@
                 document.getElementById('app').style.display = 'flex';
                 document.querySelector('.top-section').style.display = 'block';
                 document.querySelector('.bottom-section').style.display = 'block';
-                setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 500);
+                
+                // כאן אנחנו נותנים ל-renderHome לעשות את הקסם שלו עם ה-lastFocusedId
+                renderHome();
             }
         }
     </script>
