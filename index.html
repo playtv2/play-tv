@@ -99,15 +99,16 @@
 
         #video-container { position: fixed; inset: 0; background: #000; z-index: 50000; display: none; }
         
-        /* --- Loading (שקוף ללחיצות) --- */
+        /* --- זה התיקון לסרטון הטעינה (שקוף ללחיצות) --- */
         #loader-overlay {
             position: fixed; inset: 0; background: #000; z-index: 50001; 
             display: none; align-items: center; justify-content: center;
-            pointer-events: none; 
+            pointer-events: none; /* קריטי: מאפשר ללחיצות לעבור לנגן */
         }
         #loader-overlay video {
             width: 300px; height: 300px; object-fit: contain;
         }
+        /* --------------------------------------------- */
 
         .search-container { padding: 20px 50px; }
         .search-input { width: 100%; max-width: 600px; background: #222; border: 2px solid #333; color: white; padding: 15px 20px; font-size: 20px; border-radius: 50px; outline: none; transition: 0.3s; margin-bottom: 30px; }
@@ -125,7 +126,7 @@
         .profile-box:focus .profile-img { border-color: var(--red); }
         .profile-name { font-size: 16px; color: #ccc; }
         
-        /* קיבוע וידאו שלא יזוז */
+        /* --- זה התיקון לתזוזת המסך עם החצים --- */
         iframe { width: 100%; height: 100%; border: none; overflow: hidden; }
     </style>
 </head>
@@ -221,6 +222,7 @@
                 return; 
             }
             if (!active) return;
+            // הוספתי את login-btn כדי שהשלט יוכל ללחוץ עליו
             if (e.key === 'Enter' && (active.classList.contains('card') || active.classList.contains('nav-item') || active.classList.contains('profile-box') || active.classList.contains('login-btn'))) { e.preventDefault(); active.click(); return; }
             if (e.key === 'ArrowRight' && active.classList.contains('card')) {
                 e.preventDefault(); const prevCard = active.previousElementSibling;
@@ -310,25 +312,24 @@
                 if(items.length > 0) home.innerHTML += renderRow(g, items);
             });
             
-            // >>>>>>>>> זה התיקון האמיתי לבעיית הפוקוס <<<<<<<<<<<
-            // כאן אנחנו בודקים: יש לנו מיקום אחרון? מצוין, בוא נחזור אליו.
-            // אין לנו? רק אז נלך להתחלה.
-            if (lastFocusedId) {
-                setTimeout(() => { 
-                    const el = document.querySelector(`[data-id="${lastFocusedId}"]`); 
-                    if(el) { 
-                        el.focus(); 
-                        el.scrollIntoView({block: 'center', inline: 'center'}); 
+            // --- זה התיקון לפוקוס הנעלם ---
+            // במקום לנסות מיד, מחכים 300ms ואז מוודאים שיש מיקוד.
+            setTimeout(() => { 
+                if (lastFocusedId) {
+                    const el = document.querySelector(`[data-id="${lastFocusedId}"]`);
+                    if (el) {
+                        el.focus();
+                        el.scrollIntoView({block: 'center', inline: 'center'});
                     } else {
-                        // אם הכרטיס לא נמצא (נדיר), נלך לראשון כגיבוי
-                        const first = document.querySelector('.card');
-                        if(first) first.focus();
+                        // אם לא נמצא, לך לראשון
+                        const c = document.querySelector('.card'); 
+                        if(c) c.focus();
                     }
-                }, 200);
-            } else {
-                setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 200);
-            }
-            // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                } else {
+                    const c = document.querySelector('.card'); 
+                    if(c) c.focus();
+                }
+            }, 300); // הזמן המורחב (300) קריטי לסטרימר
         }
 
         function renderRow(title, items, forceUniform = false) {
@@ -344,10 +345,7 @@
             let item = seriesData.find(x => x.id === id);
             if (!item) { const history = getHistory(); item = history.find(h => h.id === id); }
             if (!item) return;
-            
-            lastFocusedId = id; // שומרים את ה-ID *לפני* המעבר
-            
-            addToHistory(item);
+            lastFocusedId = id; addToHistory(item);
             const detailView = document.getElementById('content-view');
             document.querySelector('.top-section').style.display = 'none'; document.querySelector('.bottom-section').style.display = 'none';
             detailView.style.display = 'block';
@@ -366,11 +364,12 @@
             setTimeout(() => { const b=detailView.querySelector('.login-btn')||detailView.querySelector('.card'); if(b)b.focus(); }, 200);
         }
 
+        // --- Loading ל-10 שניות וקיבוע מסך ---
         function playHD(id) {
             currentPlayingId = id;
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(true);
             
-            // Loading ל-10 שניות
+            // הצגת Loading
             const loader = document.getElementById('loader-overlay');
             loader.style.display = 'flex';
             setTimeout(() => { loader.style.display = 'none'; }, 10000); 
@@ -393,7 +392,7 @@
             } else closeVideo();
         }
 
-        // --- האוטומציה המותאמת (4 שניות דיליי) ---
+        // --- אוטומציה עם דיליי לסטרימר ---
         function automateDrive() {
             if(window.AndroidControl) {
                 setTimeout(function() { 
@@ -405,24 +404,35 @@
         }
 
         window.handleBackPress = function() {
+            // יציאה מוידאו
             if(document.getElementById('video-container').style.display === 'block') {
                 document.getElementById('video-container').innerHTML = '';
                 document.getElementById('video-container').style.display = 'none';
-                
                 document.getElementById('loader-overlay').style.display = 'none';
+                
                 window.hpDone = false; 
                 
                 document.getElementById('content-view').style.display = 'block';
-                if(currentPlayingId) setTimeout(() => { const el = document.querySelector(`[data-id="${currentPlayingId}"]`); if(el) { el.focus(); el.scrollIntoView({block: 'center', inline: 'center'}); } }, 100);
+                // החזרת פוקוס לפרק האחרון
+                if(currentPlayingId) {
+                    setTimeout(() => { 
+                        let el = document.querySelector(`[data-id="${currentPlayingId}"]`);
+                        if(el) { el.focus(); el.scrollIntoView({block: 'center', inline: 'center'}); }
+                        else { const btn = document.querySelector('.login-btn'); if(btn) btn.focus(); }
+                    }, 100);
+                }
                 
                 if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
                 return;
             }
+            
+            // יציאה מדף סדרה לבית
             if (document.getElementById('content-view').style.display !== 'none') {
                 document.getElementById('content-view').style.display = 'none';
-                switchScreen('home');
+                switchScreen('home'); // זה מפעיל את renderHome עם המנגנון החדש
                 return;
             }
+            
             if (document.getElementById('search-input')) { enterApp(); return; }
             if (document.querySelector('.bottom-section').style.display === 'block') { switchScreen('profiles'); return; }
             if (window.AndroidControl) AndroidControl.exitApp();
@@ -439,14 +449,14 @@
 
             if (name === 'auth') document.getElementById('auth-screen').style.display = 'flex';
             if (name === 'profiles') document.getElementById('profile-screen').style.display = 'flex';
+            
             if (name === 'home') {
                 document.getElementById('sidebar').style.display = 'flex';
                 document.getElementById('app').style.display = 'flex';
                 document.querySelector('.top-section').style.display = 'block';
                 document.querySelector('.bottom-section').style.display = 'block';
                 
-                // כאן אנחנו נותנים ל-renderHome לעשות את הקסם שלו עם ה-lastFocusedId
-                renderHome();
+                renderHome(); // כאן קורה הקסם של שחזור הפוקוס
             }
         }
     </script>
