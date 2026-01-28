@@ -19,7 +19,6 @@
         }
         *:focus { outline: none; }
         
-        /* Sidebar */
         .sidebar { 
             width: var(--sidebar-width); background: #000; 
             display: flex; flex-direction: column; padding: 15px 5px; 
@@ -28,33 +27,24 @@
             overflow: hidden; white-space: nowrap;
         }
         .sidebar:focus-within, .sidebar:hover { width: var(--sidebar-expanded); }
-        
-        .logo { 
-            width: 100%; height: 60px; 
-            background-size: contain; background-repeat: no-repeat; background-position: center; 
-            margin-bottom: 20px; margin-top: 20px;
-            background-image: url('./images/logo.png'); 
-        }
+        .logo { width: 100%; height: 60px; background: url('./images/logo.png') no-repeat center/contain; margin: 20px 0; }
         
         .nav-item { padding: 12px; font-size: 16px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; display: flex; align-items: center; color: #888; transition: 0.2s; }
         .nav-icon { font-size: 22px; min-width: 40px; text-align: center; }
-        .nav-text { opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; margin-right: 10px; font-weight: 600; }
+        .nav-text { opacity: 0; visibility: hidden; transition: 0.2s; margin-right: 10px; font-weight: 600; }
         .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; visibility: visible; }
         .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
 
-        /* Layout */
         .main-content { flex: 1; height: 100vh; display: flex; flex-direction: column; position: relative; background: #000; overflow: hidden; }
-
         .top-section { height: 55%; width: 100%; position: relative; flex-shrink: 0; z-index: 1; }
-        .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: top center; transition: background-image 0.4s ease-out; }
-        .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #000000 5%, rgba(0,0,0,0.6) 50%, transparent 100%); }
+        .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: top center; transition: 0.4s; }
+        .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #000 5%, rgba(0,0,0,0.6) 50%, transparent 100%); }
         .hero-text { position: absolute; bottom: 20px; right: 50px; left: 50px; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; }
         .hero-title { font-size: 60px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 15px black; line-height: 1; }
         .hero-desc { font-size: 20px; color: #ddd; line-height: 1.3; text-shadow: 1px 1px 5px black; max-width: 60%; max-height: 80px; overflow: hidden; }
 
-        /* Scroll Area */
         .bottom-section { 
-            height: 45%; flex-grow: 1; width: 100%; background: #000000; 
+            height: 45%; flex-grow: 1; width: 100%; background: #000; 
             overflow-y: auto; overflow-x: hidden; 
             padding-top: 10px; padding-bottom: 100px; box-sizing: border-box; z-index: 2; 
             scroll-behavior: smooth; 
@@ -64,50 +54,28 @@
         .category-block { margin-bottom: 5px; padding-right: 40px; display: block; }
         .category-title { font-size: 18px; margin-bottom: 0px; font-weight: bold; color: #aaa; }
         
-        .row { 
-            display: flex; gap: 15px; 
-            padding: 40px 0 40px 0; 
-            margin-top: -20px; 
-            margin-bottom: -10px;
-            overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
-            scroll-snap-type: x mandatory; 
-            padding-left: 50px; 
-        }
+        .row { display: flex; gap: 15px; padding: 40px 0 40px 50px; margin: -20px 0 -10px 0; overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; scroll-snap-type: x mandatory; }
         .row::-webkit-scrollbar { display: none; }
         
         .card { 
             display: inline-block; position: relative; cursor: pointer; 
-            border-radius: 6px; overflow: hidden; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-            border: 2px solid transparent; 
-            transition: transform 0.2s, border-color 0.2s; 
-            scroll-snap-align: start; flex-shrink: 0; 
-            z-index: 1;
-            transform-origin: center center;
+            border-radius: 6px; overflow: hidden; border: 2px solid transparent; 
+            transition: 0.2s; scroll-snap-align: start; flex-shrink: 0; z-index: 1; transform-origin: center center;
         }
-
         .row .card:first-child { transform-origin: right center !important; }
         .row .card:last-child { transform-origin: left center !important; }
         
         .card.series { min-width: 200px; width: 200px; height: 112px; }
         .card.movie { min-width: 100px; width: 100px; height: 150px; }
-        .card img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
         
-        .card:focus { transform: scale(1.15); z-index: 100; border-width: 2px; border-color: #ffffff; box-shadow: 0 10px 20px rgba(0,0,0,0.9); outline: none; }
+        .card:focus { transform: scale(1.15); z-index: 100; border-color: #fff; outline: none; }
         .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; transition: 0.2s; color: white; }
         .card:focus .card-title-overlay { opacity: 1; }
 
         #video-container { position: fixed; inset: 0; background: #000; z-index: 50000; display: none; }
-        
-        /* ה-Loading שקוף ללחיצות */
-        #loader-overlay {
-            position: fixed; inset: 0; background: #000; z-index: 50001; 
-            display: none; align-items: center; justify-content: center;
-            pointer-events: none; 
-        }
-        #loader-overlay video {
-            width: 300px; height: 300px; object-fit: contain;
-        }
+        #loader-overlay { position: fixed; inset: 0; background: #000; z-index: 50001; display: none; align-items: center; justify-content: center; pointer-events: none; }
+        #loader-overlay video { width: 300px; height: 300px; object-fit: contain; }
 
         .search-container { padding: 20px 50px; }
         .search-input { width: 100%; max-width: 600px; background: #222; border: 2px solid #333; color: white; padding: 15px 20px; font-size: 20px; border-radius: 50px; outline: none; transition: 0.3s; margin-bottom: 30px; }
@@ -125,17 +93,13 @@
         .profile-box:focus .profile-img { border-color: var(--red); }
         .profile-name { font-size: 16px; color: #ccc; }
         
-        /* iframe מקובע כדי שלא יזוז */
         iframe { width: 100%; height: 100%; border: none; overflow: hidden; }
     </style>
 </head>
 <body>
 
     <div id="loading-screen" style="display: flex;"><h1 style="color: #444; font-size: 24px;">טוען...</h1></div>
-
-    <div id="loader-overlay">
-        <video src="loading.mp4" autoplay loop muted playsinline></video>
-    </div>
+    <div id="loader-overlay"><video src="loading.mp4" autoplay loop muted playsinline></video></div>
 
     <div id="auth-screen" class="screen">
         <h1 style="font-size: 60px; color: var(--red); margin: 0;">HOT Play</h1>
@@ -149,8 +113,7 @@
     </div>
 
     <div class="sidebar screen" id="sidebar">
-        <div class="logo"></div>
-        <div id="dynamic-nav"></div>
+        <div class="logo"></div><div id="dynamic-nav"></div>
     </div>
 
     <div class="main-content screen" id="app">
@@ -173,7 +136,7 @@
         firebase.initializeApp(firebaseConfig);
 
         let currentProfile = null;
-        let lastFocusedId = null; // כאן נשמר המיקום האחרון
+        let lastFocusedId = null;
         let currentPlayingId = null; 
 
         const profilesData = [
@@ -310,38 +273,41 @@
                 if(items.length > 0) home.innerHTML += renderRow(g, items);
             });
             
-            // --- תיקון הפוקוס האולטימטיבי ---
-            restoreFocus();
+            // --- הפתרון האגרסיבי לשחזור הפוקוס (Polling) ---
+            restoreFocusAggressive();
         }
 
-        // --- פונקציה חדשה שדואגת שהפוקוס לא ילך לאיבוד ---
-        function restoreFocus() {
-            setTimeout(() => {
-                let focused = false;
-                
-                // 1. נסה למצוא את הכרטיס האחרון
-                if (lastFocusedId) {
-                    const el = document.querySelector(`[data-id="${lastFocusedId}"]`);
-                    if (el) {
-                        el.focus();
-                        el.scrollIntoView({block: 'center', inline: 'center'});
-                        focused = true;
+        // --- הפונקציה החדשה ש"רודפת" אחרי הפוקוס ---
+        function restoreFocusAggressive() {
+            if (!lastFocusedId) {
+                setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 300);
+                return;
+            }
+
+            let attempts = 0;
+            // בודק כל 100 מילי-שניות אם הכרטיס קיים
+            const interval = setInterval(() => {
+                const el = document.querySelector(`[data-id="${lastFocusedId}"]`);
+                if (el) {
+                    el.focus();
+                    el.scrollIntoView({block: 'center', inline: 'center'});
+                    // אם הצלחנו להתמקד - מפסיקים לבדוק
+                    if (document.activeElement === el) {
+                        clearInterval(interval);
                     }
                 }
                 
-                // 2. אם לא מצאנו או שאין היסטוריה, קח את הכרטיס הראשון
-                if (!focused) {
-                    const first = document.querySelector('.card');
-                    if (first) {
-                        first.focus();
-                        // עדכון ה-ID האחרון לחדש
-                        lastFocusedId = first.getAttribute('data-id');
-                    } else {
-                        // 3. אם אין כרטיסים בכלל, לך לתפריט
-                        document.querySelector('.nav-item').focus();
+                attempts++;
+                // אחרי 2 שניות (20 ניסיונות) מתייאשים והולכים לכרטיס הראשון
+                if (attempts > 20) {
+                    clearInterval(interval);
+                    if (document.activeElement.tagName === 'BODY' || !document.activeElement) {
+                        const first = document.querySelector('.card');
+                        if(first) first.focus();
+                        else document.querySelector('.nav-item').focus();
                     }
                 }
-            }, 300); // מחכים 300ms כדי שהסטרימר יספיק לבנות את ה-HTML
+            }, 100);
         }
 
         function renderRow(title, items, forceUniform = false) {
@@ -358,8 +324,7 @@
             if (!item) { const history = getHistory(); item = history.find(h => h.id === id); }
             if (!item) return;
             
-            // שומרים את ה-ID *לפני* המעבר
-            lastFocusedId = id; 
+            lastFocusedId = id; // שומרים את ה-ID
             
             addToHistory(item);
             const detailView = document.getElementById('content-view');
@@ -384,14 +349,14 @@
             currentPlayingId = id;
             if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(true);
             
-            // Loading ל-10 שניות
+            // Loading 10s
             const loader = document.getElementById('loader-overlay');
             loader.style.display = 'flex';
             setTimeout(() => { loader.style.display = 'none'; }, 10000); 
 
             const container = document.getElementById('video-container');
             container.style.display = 'block'; 
-            // קיבוע iframe כדי למנוע גלילה
+            // Fixed iframe
             container.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allowfullscreen style="width:100%; height:100%; border:none; overflow:hidden;" scrolling="no"></iframe>`;
             
             if (typeof AndroidControl !== 'undefined') automateDrive();
@@ -407,7 +372,7 @@
             } else closeVideo();
         }
 
-        // --- אוטומציה מותאמת לסטרימר (לחיצה אחרי 4 שניות) ---
+        // --- האוטומציה המותאמת (4 שניות דיליי) ---
         function automateDrive() {
             if(window.AndroidControl) {
                 setTimeout(function() { 
@@ -419,7 +384,6 @@
         }
 
         window.handleBackPress = function() {
-            // יציאה מוידאו
             if(document.getElementById('video-container').style.display === 'block') {
                 document.getElementById('video-container').innerHTML = '';
                 document.getElementById('video-container').style.display = 'none';
@@ -428,7 +392,6 @@
                 window.hpDone = false; 
                 
                 document.getElementById('content-view').style.display = 'block';
-                // מחזיר פוקוס לפרק או לכפתור הניגון שהיינו עליו
                 if(currentPlayingId) {
                     setTimeout(() => { 
                         let el = document.querySelector(`[data-id="${currentPlayingId}"]`);
@@ -443,14 +406,11 @@
                 if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
                 return;
             }
-            
-            // יציאה מדף תוכן לדף הבית
             if (document.getElementById('content-view').style.display !== 'none') {
                 document.getElementById('content-view').style.display = 'none';
-                switchScreen('home'); // קורא ל-renderHome שמפעיל את restoreFocus
+                switchScreen('home');
                 return;
             }
-            
             if (document.getElementById('search-input')) { enterApp(); return; }
             if (document.querySelector('.bottom-section').style.display === 'block') { switchScreen('profiles'); return; }
             if (window.AndroidControl) AndroidControl.exitApp();
@@ -467,15 +427,13 @@
 
             if (name === 'auth') document.getElementById('auth-screen').style.display = 'flex';
             if (name === 'profiles') document.getElementById('profile-screen').style.display = 'flex';
-            
             if (name === 'home') {
                 document.getElementById('sidebar').style.display = 'flex';
                 document.getElementById('app').style.display = 'flex';
                 document.querySelector('.top-section').style.display = 'block';
                 document.querySelector('.bottom-section').style.display = 'block';
                 
-                // בונים מחדש ומשחזרים פוקוס
-                renderHome();
+                renderHome(); // זה כבר יפעיל את restoreFocusAggressive
             }
         }
     </script>
