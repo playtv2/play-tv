@@ -6,6 +6,10 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
     <style>
@@ -13,7 +17,7 @@
         * { -webkit-tap-highlight-color: transparent !important; outline: none !important; }
         
         body { 
-            background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); color: white; font-family: 'Heebo', sans-serif; /* שינוי פונט */
             margin: 0; padding: 0; width: 100vw; height: 100vh; 
             overflow: hidden; display: flex; position: fixed; inset: 0;
         }
@@ -49,10 +53,11 @@
         .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: top center; transition: background-image 0.4s ease-out; }
         .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #000000 5%, rgba(0,0,0,0.6) 50%, transparent 100%); }
         .hero-text { position: absolute; bottom: 20px; right: 50px; left: 50px; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; }
-        .hero-title { font-size: 60px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 15px black; line-height: 1; }
-        .hero-desc { font-size: 20px; color: #ddd; line-height: 1.3; text-shadow: 1px 1px 5px black; max-width: 60%; max-height: 80px; overflow: hidden; }
+        
+        .hero-title { font-size: 60px; font-weight: 900; margin-bottom: 10px; text-shadow: 2px 2px 15px black; line-height: 1; letter-spacing: -1px; }
+        .hero-desc { font-size: 20px; color: #ddd; line-height: 1.3; text-shadow: 1px 1px 5px black; max-width: 60%; max-height: 80px; overflow: hidden; font-weight: 300; }
 
-        /* Scroll Area - Home View */
+        /* Scroll Area */
         .bottom-section { 
             height: 45%; flex-grow: 1; width: 100%; background: #000000; 
             overflow-y: auto; overflow-x: hidden; 
@@ -62,7 +67,7 @@
         .bottom-section::-webkit-scrollbar { display: none; }
 
         .category-block { margin-bottom: 5px; padding-right: 40px; display: block; }
-        .category-title { font-size: 18px; margin-bottom: 0px; font-weight: bold; color: #aaa; }
+        .category-title { font-size: 20px; margin-bottom: 5px; font-weight: 700; color: #ccc; letter-spacing: 0.5px; }
         
         .row { 
             display: flex; gap: 15px; 
@@ -77,7 +82,7 @@
         
         .card { 
             display: inline-block; position: relative; cursor: pointer; 
-            border-radius: 6px; overflow: hidden; 
+            border-radius: 4px; overflow: hidden; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
             border: 2px solid transparent; 
             transition: transform 0.2s, border-color 0.2s; 
@@ -89,33 +94,60 @@
         .row .card:first-child { transform-origin: right center !important; }
         .row .card:last-child { transform-origin: left center !important; }
         
-        .card.series { min-width: 200px; width: 200px; height: 112px; }
+        .card.series { min-width: 240px; width: 240px; height: 135px; } /* יחס מסך רחב יותר */
         .card.movie { min-width: 100px; width: 100px; height: 150px; }
         .card img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
         
-        .card:focus { transform: scale(1.15); z-index: 100; border-width: 2px; border-color: #ffffff; box-shadow: 0 10px 20px rgba(0,0,0,0.9); outline: none; }
-        .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; transition: 0.2s; color: white; }
+        .card:focus { transform: scale(1.12); z-index: 100; border-width: 3px; border-color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.9); outline: none; }
+        .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); padding: 10px 5px; text-align: center; font-size: 13px; opacity: 0; transition: 0.2s; color: white; font-weight: bold; }
         .card:focus .card-title-overlay { opacity: 1; }
 
-        /* --- תצוגת תוכן כ-Overlay (שכבה עליונה) --- */
+        /* --- Content View (Overlay) Design --- */
         #content-view {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 5000; /* מעל הכל */
-            overflow-y: auto;
-            display: none; /* מוסתר כברירת מחדל */
-            padding: 30px;
+            position: fixed; inset: 0; background: #000; z-index: 5000; 
+            overflow-y: auto; display: none; padding: 0; /* ביטלתי פדינג כדי שהתמונה תהיה מלאה */
+        }
+        
+        .content-hero {
+            height: 60vh; width: 100%; position: relative;
+            background-size: cover; background-position: center top;
+        }
+        .content-hero::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to bottom, transparent 0%, #000 90%);
+        }
+        .content-info {
+            position: absolute; bottom: 20px; right: 50px; left: 50px; z-index: 2;
+            text-align: right;
+        }
+        
+        /* עיצוב כותרת ירוקה הדרגתית לילדים */
+        .title-kids {
+            font-size: 65px; font-weight: 900; margin: 0; line-height: 1.1;
+            background: linear-gradient(90deg, #25D366 0%, #128C7E 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 2px 10px rgba(0,0,0,0.5);
+        }
+        .title-regular {
+            font-size: 65px; font-weight: 900; margin: 0; line-height: 1.1; color: white;
         }
 
-        #video-container { position: fixed; inset: 0; background: #000; z-index: 60000; display: none; }
-        
-        /* Loading */
-        #loader-overlay {
-            position: fixed; inset: 0; background: #000; z-index: 60001; 
-            display: none; align-items: center; justify-content: center;
-            pointer-events: none; 
+        .meta-line { font-size: 18px; color: #bbb; margin-top: 10px; font-weight: 400; }
+        .desc-text { font-size: 22px; color: #ddd; margin-top: 15px; max-width: 60%; line-height: 1.4; font-weight: 300; }
+
+        /* טאבים בסגנון התמונה */
+        .tabs-strip {
+            display: flex; gap: 25px; margin-top: 30px; margin-right: 50px; margin-bottom: 10px;
+            font-size: 18px; font-weight: 700; color: #888;
         }
+        .tab-item { cursor: pointer; }
+        .tab-item.active { color: #d0021b; /* אדום כמו בתמונה */ border-bottom: 2px solid #d0021b; padding-bottom: 5px; }
+
+        .episodes-container { padding: 0 50px 50px 50px; }
+
+        #video-container { position: fixed; inset: 0; background: #000; z-index: 60000; display: none; }
+        #loader-overlay { position: fixed; inset: 0; background: #000; z-index: 60001; display: none; align-items: center; justify-content: center; pointer-events: none; }
         #loader-overlay video { width: 300px; height: 300px; object-fit: contain; }
 
         .search-container { padding: 20px 50px; }
@@ -182,7 +214,7 @@
         firebase.initializeApp(firebaseConfig);
 
         let currentProfile = null;
-        let savedElement = null; // כאן נשמור את הכפתור שלחצנו עליו
+        let savedElement = null; 
         let currentPlayingId = null; 
 
         const profilesData = [
@@ -209,7 +241,6 @@
         }
 
         function showSearch() {
-            // בחיפוש אנחנו עדיין משתמשים במנגנון הישן (החלפה)
             const home = document.getElementById('home-view');
             document.querySelector('.top-section').style.display = 'none';
             home.innerHTML = `<div class="search-container"><input type="text" id="search-input" class="search-input" placeholder="מה בא לך לראות?" oninput="runSearch(this.value)"><div id="search-results"></div></div>`;
@@ -286,7 +317,7 @@
 
         document.addEventListener('focus', function(e) {
             if (e.target.classList.contains('card')) {
-                // רק אם חלון התוכן סגור, משנים את תמונת הרקע
+                // שינוי תמונת הרקע רק אם אנחנו במסך הראשי (ה-Overlay סגור)
                 if (document.getElementById('content-view').style.display === 'none') {
                     e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                     const id = e.target.getAttribute('data-id');
@@ -311,6 +342,12 @@
 
         function renderHome() {
             const home = document.getElementById('home-view');
+            // אם כבר יש תוכן (חזרנו מפרופיל/חיפוש), לא בונים מחדש
+            if (home.innerHTML.trim() !== '') {
+                document.querySelector('.top-section').style.display = 'block';
+                return;
+            }
+
             document.querySelector('.top-section').style.display = 'block';
             home.innerHTML = '';
             const history = getHistory();
@@ -333,34 +370,72 @@
             return `<div class="category-block"><div class="category-title">${title}</div><div class="row">${cardsHtml}</div></div>`;
         }
 
-        // --- השינוי המרכזי: שיטת השכבות (Overlay) ---
+        // --- פתיחת דף סדרה מעוצב (כמו בתמונה) ---
         function openContent(id) {
             let item = seriesData.find(x => x.id === id);
             if (!item) { const history = getHistory(); item = history.find(h => h.id === id); }
             if (!item) return;
             
-            // 1. שומרים את הכרטיס שהיינו עליו
+            // שמירת המיקום הנוכחי
             savedElement = document.activeElement;
-            
             addToHistory(item);
             
-            // 2. פותחים את השכבה מעל (בלי למחוק את הרקע)
             const detailView = document.getElementById('content-view');
             detailView.style.display = 'block';
             
-            let html = '';
-            if (item.type === 'movie' || item.category === 'סרטים') {
-                html = `<div style="min-height:80vh; display:flex; flex-direction:column; justify-content:center; background: linear-gradient(to right, black, transparent), url('${item.image}') no-repeat center/cover; padding:60px;">
-                    <h1 style="font-size:50px; margin-bottom:15px; text-shadow: 2px 2px 10px black;">${item.title}</h1><p style="max-width:600px; font-size:18px; margin-bottom:25px; text-shadow: 1px 1px 5px black;">${item.description}</p>
-                    <button class="login-btn" tabindex="0" onclick="playHD('${item.driveId}')">▶ נגן סרט</button></div>`;
+            // בדיקת סוג כותרת (ירוק לילדים, לבן לכל השאר)
+            const isKids = (item.category === 'ילדים');
+            const titleClass = isKids ? 'title-kids' : 'title-regular';
+            
+            // בניית ה-HTML לפי העיצוב החדש
+            let html = `
+                <div class="content-hero" style="background-image: url('${item.image}')">
+                    <div class="content-info">
+                        <h1 class="${titleClass}">${item.title}</h1>
+                        <div class="meta-line">
+                            <span>${item.genre || item.category}</span>
+                            ${item.type === 'series' ? ' | עונה 1' : ''} 
+                        </div>
+                        <p class="desc-text">${item.description || 'תיאור לא זמין'}</p>
+                    </div>
+                </div>
+            `;
+
+            // הוספת הטאבים (עונות / פרקים) ורשימת הפרקים
+            if (item.type !== 'movie' && item.category !== 'סרטים') {
+                html += `
+                    <div class="tabs-strip">
+                        <div class="tab-item">עונות</div>
+                        <div class="tab-item active">${item.title} - הפרקים - חדש</div>
+                        <div class="tab-item">מאחורי הקלעים</div>
+                    </div>
+                    <div class="episodes-container">
+                        <div class="row" style="padding: 0;">
+                            ${item.episodes.map(ep => `
+                                <div class="card series" tabindex="0" data-id="${ep.driveId}" onclick="playHD('${ep.driveId}')">
+                                    <img src="${ep.image}" style="height:100%;">
+                                    <div class="card-title-overlay">פרק ${ep.number}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
             } else {
-                html = `<div><div style="margin-bottom: 30px;"><h1 style="font-size:50px; margin-bottom:15px;">${item.title}</h1><p style="max-width:700px; color:#aaa; font-size: 18px;">${item.description}</p></div>
-                    <div class="category-title">פרקים</div><div class="row" style="padding-bottom:20px;">
-                        ${item.episodes.map(ep => `<div class="card series" tabindex="0" data-id="${ep.driveId}" onclick="playHD('${ep.driveId}')"><img src="${ep.image}" style="height:100%;"><div class="card-title-overlay">פרק ${ep.number}</div></div>`).join('')}
-                    </div></div>`;
+                // עיצוב לסרטים
+                html += `
+                    <div style="padding: 50px;">
+                        <button class="login-btn" tabindex="0" onclick="playHD('${item.driveId}')">▶ נגן סרט</button>
+                    </div>
+                `;
             }
+
             detailView.innerHTML = html;
-            setTimeout(() => { const b=detailView.querySelector('.login-btn')||detailView.querySelector('.card'); if(b)b.focus(); }, 200);
+            
+            // פוקוס על הכפתור הראשון/פרק ראשון
+            setTimeout(() => { 
+                const first = detailView.querySelector('.card') || detailView.querySelector('.login-btn');
+                if(first) first.focus(); 
+            }, 200);
         }
 
         function playHD(id) {
@@ -399,22 +474,21 @@
         }
 
         window.handleBackPress = function() {
-            // יציאה מוידאו
+            // סגירת וידאו
             if(document.getElementById('video-container').style.display === 'block') {
                 document.getElementById('video-container').innerHTML = '';
                 document.getElementById('video-container').style.display = 'none';
                 document.getElementById('loader-overlay').style.display = 'none';
-                
                 window.hpDone = false; 
                 
-                // בודקים אם יש שכבת תוכן פתוחה מתחת לוידאו
+                // אם חזרנו ל-content view, הפוקוס צריך להיות שם
                 if (document.getElementById('content-view').style.display === 'block') {
                     if(currentPlayingId) {
-                        setTimeout(() => { 
-                            let el = document.querySelector(`[data-id="${currentPlayingId}"]`);
-                            if(el) { el.focus(); el.scrollIntoView({block: 'center', inline: 'center'}); }
-                            else { const btn = document.querySelector('.login-btn'); if(btn) btn.focus(); }
-                        }, 100);
+                       setTimeout(() => {
+                           let el = document.querySelector(`[data-id="${currentPlayingId}"]`);
+                           if(el) { el.focus(); el.scrollIntoView({block: 'center', inline: 'center'}); }
+                           else { const btn = document.querySelector('.login-btn'); if(btn) btn.focus(); }
+                       }, 100);
                     }
                 }
                 
@@ -422,11 +496,11 @@
                 return;
             }
             
-            // יציאה משכבת התוכן חזרה לבית
+            // יציאה מדף סדרה לבית
             if (document.getElementById('content-view').style.display === 'block') {
                 document.getElementById('content-view').style.display = 'none';
                 
-                // והכי חשוב: מחזירים את הפוקוס לאלמנט ששמרנו!
+                // החזרת פוקוס לכרטיס ששמרנו!
                 if (savedElement) {
                     savedElement.focus();
                     savedElement.scrollIntoView({block: 'center', inline: 'center'});
@@ -453,9 +527,7 @@
             if (name === 'home') {
                 document.getElementById('sidebar').style.display = 'flex';
                 document.getElementById('app').style.display = 'flex';
-                document.querySelector('.top-section').style.display = 'block';
-                document.querySelector('.bottom-section').style.display = 'block';
-                setTimeout(() => { const c=document.querySelector('.card'); if(c)c.focus(); }, 500);
+                renderHome();
             }
         }
     </script>
