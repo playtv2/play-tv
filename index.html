@@ -23,13 +23,12 @@
         }
         *:focus { outline: none; }
         
-        /* Sidebar */
+        /* Sidebar - חזרנו ל-Flex רגיל */
         .sidebar { 
             width: var(--sidebar-width); background: #000; 
             display: flex; flex-direction: column; padding: 15px 5px; 
             border-left: 1px solid #222; height: 100%; 
-            position: absolute; right: 0; top: 0; bottom: 0; /* קיבוע מוחלט */
-            z-index: 6000; 
+            z-index: 6000; flex-shrink: 0;
             transition: width 0.3s ease; 
             overflow: hidden; white-space: nowrap;
         }
@@ -48,41 +47,36 @@
         .sidebar:focus-within .nav-text, .sidebar:hover .nav-text { opacity: 1; visibility: visible; }
         .nav-item:focus { background: var(--red); color: white; transform: scale(1.05); }
 
-        /* Layout - חלוקה קשיחה באחוזים (הכי בטוח) */
+        /* Layout - חזרה למבנה הבסיסי שעבד */
         .main-content { 
-            position: absolute; top: 0; left: 0; bottom: 0; right: var(--sidebar-width); /* משאיר מקום לתפריט */
-            background: #000; overflow: hidden;
+            flex: 1; height: 100vh; display: flex; flex-direction: column; 
+            position: relative; background: #000; overflow: hidden; 
         }
 
-        .top-section { 
-            position: absolute; top: 0; left: 0; right: 0; height: 55%; 
-            z-index: 1; 
-        }
-        
-        .bottom-section { 
-            position: absolute; top: 55%; left: 0; right: 0; bottom: 0; /* מ-55% עד למטה */
-            background: #000000; 
-            overflow-y: auto; 
-            overflow-x: hidden; 
-            padding-top: 10px; padding-bottom: 50px; 
-            z-index: 2; 
-        }
-        .bottom-section::-webkit-scrollbar { display: none; }
-
-        /* Hero Design */
+        .top-section { height: 55%; width: 100%; position: relative; flex-shrink: 0; z-index: 1; }
         .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: top center; transition: background-image 0.4s ease-out; }
         .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #000000 5%, rgba(0,0,0,0.6) 50%, transparent 100%); }
         .hero-text { position: absolute; bottom: 20px; right: 50px; left: 50px; z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; }
         .hero-title { font-size: 60px; font-weight: 900; margin-bottom: 10px; text-shadow: 2px 2px 15px black; line-height: 1; }
         .hero-desc { font-size: 20px; color: #ddd; line-height: 1.3; text-shadow: 1px 1px 5px black; max-width: 60%; max-height: 80px; overflow: hidden; font-weight: 300; }
 
-        /* Categories */
-        .category-block { margin-bottom: 10px; padding-right: 40px; display: block; }
-        .category-title { font-size: 22px; margin-bottom: 5px; font-weight: 700; color: #e5e5e5; }
+        /* Bottom Section - חזרה לגובה באחוזים שעבד */
+        .bottom-section { 
+            height: 45%; flex-grow: 1; width: 100%; background: #000000; 
+            overflow-y: auto; overflow-x: hidden; 
+            padding-top: 10px; padding-bottom: 100px; box-sizing: border-box; z-index: 2; 
+            scroll-behavior: smooth; 
+        }
+        .bottom-section::-webkit-scrollbar { display: none; }
+
+        .category-block { margin-bottom: 5px; padding-right: 40px; display: block; }
+        .category-title { font-size: 20px; margin-bottom: 0px; font-weight: 700; color: #ccc; }
         
         .row { 
             display: flex; gap: 15px; 
-            padding: 10px 0 20px 0; 
+            padding: 40px 0 40px 0; 
+            margin-top: -20px; 
+            margin-bottom: -10px;
             overflow-x: auto; scroll-behavior: smooth; white-space: nowrap; 
             scroll-snap-type: x mandatory; 
             padding-left: 50px; 
@@ -111,10 +105,10 @@
         .card-title-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); padding: 5px; text-align: center; font-size: 11px; opacity: 0; transition: 0.2s; color: white; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
         .card:focus .card-title-overlay { opacity: 1; }
 
-        /* --- OVERLAY (שכבת התוכן) --- */
+        /* --- שכבת ה-Overlay (חשוב: left: 70px) --- */
         #content-view {
-            position: fixed; top: 0; bottom: 0; left: 0;
-            right: var(--sidebar-width); /* לא מסתיר את התפריט */
+            position: fixed; top: 0; bottom: 0; left: 0; right: 0; /* נתפרס על הכל */
+            margin-right: 70px; /* אבל משאיר מקום לתפריט מימין (RTL) */
             background: #000; 
             z-index: 5000; 
             overflow-y: auto; 
@@ -131,6 +125,7 @@
         }
         .content-details { position: absolute; bottom: 10px; right: 50px; left: 50px; z-index: 2; }
         
+        /* כותרות */
         .title-kids {
             font-size: 70px; font-weight: 900; margin: 0; line-height: 1;
             background: linear-gradient(to left, #6bf299 0%, #1e8f58 100%);
@@ -142,6 +137,7 @@
         .meta-tags { font-size: 20px; color: #aaa; margin-top: 10px; font-weight: 400; }
         .desc-area { font-size: 22px; color: #ddd; margin-top: 15px; max-width: 60%; line-height: 1.4; font-weight: 300; }
 
+        /* טאבים */
         .tabs-strip {
             display: flex; gap: 30px; margin-top: 30px; margin-right: 50px; margin-bottom: 20px;
             font-size: 22px; font-weight: 700; color: #666;
@@ -253,7 +249,6 @@
 
         function showSearch() {
             const home = document.getElementById('home-view');
-            // אם פותחים חיפוש, אנו מסתירים זמנית את ה-Hero
             document.querySelector('.top-section').style.display = 'none';
             home.innerHTML = `<div class="search-container"><input type="text" id="search-input" class="search-input" placeholder="מה בא לך לראות?" oninput="runSearch(this.value)"><div id="search-results"></div></div>`;
             setTimeout(() => document.getElementById('search-input').focus(), 100);
@@ -300,10 +295,13 @@
             }
             
             if (e.key === 'ArrowUp') {
-                if (document.getElementById('content-view').style.display === 'block' && active.classList.contains('card')) {
-                    e.preventDefault();
-                    const activeTab = document.querySelector('.tab-item.active');
-                    if (activeTab) activeTab.focus();
+                // אם אנחנו ב-Overlay - ניווט לטאבים
+                if (document.getElementById('content-view').style.display === 'block') {
+                    if (active.classList.contains('card')) {
+                        e.preventDefault();
+                        const activeTab = document.querySelector('.tab-item.active');
+                        if (activeTab) activeTab.focus();
+                    }
                     return;
                 }
                 const currentBlock = active.closest('.category-block');
@@ -325,6 +323,7 @@
                 }
             }
             if (e.key === 'ArrowDown') {
+                // אם אנחנו בטאבים ב-Overlay
                 if (active.classList.contains('tab-item')) {
                     e.preventDefault();
                     const firstEp = document.getElementById('content-view').querySelector('.card');
@@ -352,7 +351,6 @@
 
         document.addEventListener('focus', function(e) {
             if (e.target.classList.contains('card')) {
-                // רק אם ה-Overlay סגור
                 if (document.getElementById('content-view').style.display === 'none') {
                     e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                     const id = e.target.getAttribute('data-id');
@@ -373,7 +371,7 @@
         function loadProfiles() { document.getElementById('profile-list').innerHTML = profilesData.map(p => `<div class="profile-box" tabindex="0" onclick="selectProfile('${p.n}')"><div class="profile-img" style="background-image: url('${p.i}')"></div><span class="profile-name">${p.n}</span></div>`).join(''); setTimeout(() => document.querySelector('.profile-box').focus(), 500); }
         function selectProfile(name) { 
             currentProfile = profilesData.find(p => p.n === name); 
-            // איפוס בטוח
+            // איפוס מלא כדי לאלץ בנייה מחדש
             document.getElementById('home-view').innerHTML = ''; 
             updateSidebar(); 
             enterApp(); 
@@ -385,14 +383,12 @@
 
         function renderHome() {
             const home = document.getElementById('home-view');
-            // אם כבר יש תוכן, לא נוגעים
+            // אם כבר יש תוכן (למשל, חזרנו מ-Overlay), אנחנו רק מציגים את ה-Top Section
             if (home.innerHTML.trim() !== '') {
                 document.querySelector('.top-section').style.display = 'block';
                 return;
             }
 
-            // --- זה החלק הקריטי שהחזרתי ---
-            // בונה את הדף בצורה מלאה
             document.querySelector('.top-section').style.display = 'block';
             home.innerHTML = '';
             
@@ -402,13 +398,16 @@
             let allowedCats = currentProfile.type === 'kids' ? ['ילדים'] : ['סדרות', 'סרטים'];
             const allItems = seriesData.filter(s => allowedCats.includes(s.category));
             
-            // בונה קטגוריות
             [...new Set(allItems.map(s => s.genre || s.category))].forEach(g => {
                 const items = allItems.filter(s => (s.genre || s.category) === g);
                 if(items.length > 0) home.innerHTML += renderRow(g, items);
             });
             
-            // פוקוס ראשוני
+            // אם עדיין אין כלום (תקלה), נציג הודעה
+            if (home.innerHTML === '') {
+                home.innerHTML = '<div style="padding: 20px;">אין תוכן להצגה...</div>';
+            }
+
             setTimeout(() => { const el = document.querySelector('.card'); if(el) el.focus(); }, 100);
         }
 
@@ -421,13 +420,13 @@
             return `<div class="category-block"><div class="category-title">${title}</div><div class="row">${cardsHtml}</div></div>`;
         }
 
-        // --- פתיחת שכבת התוכן ---
+        // --- פתיחת Overlay (Plan B) ---
         function openContent(id) {
             let item = seriesData.find(x => x.id === id);
             if (!item) { const history = getHistory(); item = history.find(h => h.id === id); }
             if (!item) return;
             
-            savedElement = document.activeElement;
+            savedElement = document.activeElement; // שומרים את הכפתור הנוכחי
             addToHistory(item);
             
             const detailView = document.getElementById('content-view');
@@ -518,12 +517,14 @@
         }
 
         window.handleBackPress = function() {
+            // יציאה מוידאו
             if(document.getElementById('video-container').style.display === 'block') {
                 document.getElementById('video-container').innerHTML = '';
                 document.getElementById('video-container').style.display = 'none';
                 document.getElementById('loader-overlay').style.display = 'none';
                 window.hpDone = false; 
                 
+                // החזרת פוקוס ל-Overlay (אם פתוח)
                 if (document.getElementById('content-view').style.display === 'block') {
                     if(currentPlayingId) {
                         setTimeout(() => {
@@ -533,14 +534,19 @@
                         }, 100);
                     }
                 }
+                
                 if (typeof AndroidControl !== 'undefined') AndroidControl.setVideoMode(false);
                 return;
             }
             
+            // יציאה מ-Overlay חזרה לבית
             if (document.getElementById('content-view').style.display === 'block') {
                 document.getElementById('content-view').style.display = 'none';
+                
+                // החזרת פוקוס לכרטיס ששמרנו!
                 if (savedElement) {
                     savedElement.focus();
+                    // לא צריך scrollIntoView כי הדף לא זז
                 }
                 return;
             }
